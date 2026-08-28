@@ -89,6 +89,7 @@
   .filter-row label { font-size:11px; color:var(--muted); }
   .btn-primary { background:var(--accent); color:white; }
   .btn-secondary { background:var(--panel-2); color:var(--text); border:1px solid var(--border); }
+  .btn-danger { background:var(--red); color:white; }
   .search-result-card { background:var(--panel-2); border-radius:10px; padding:16px; margin-top:12px; }
   .modal .field { margin-bottom:12px; display:flex; flex-direction:column; gap:4px; }
   .modal .field label { font-size:12px; color:var(--muted); }
@@ -100,7 +101,7 @@
 
   <!-- ============ GANTI URL INI setelah Deploy Apps Script ============ -->
   <script>
-    const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbz3N4rs4iYe6fexjzm2CLREt0pgnnzwEeddKKHJncZ7dyMUOHJRLZUAvxLNNXgq8OpZjA/exec';
+    const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwgWX0Ss_R-wCVT8vPL5HbP9bmPi-6F-Mly02GXjHZIbepRKpjKY65PDmvA30QFtxggwA/exec';
     const API_PROXY_URL = 'https://fulfillment.deniikhsan495.workers.dev';
   </script>
   <!-- ==================================================================== -->
@@ -158,6 +159,7 @@
     <div class="modal" style="max-width:480px; max-height:80vh; overflow-y:auto;">
       <h3 style="margin-top:0;">📋 Riwayat &amp; Hasil Kerja Saya</h3>
       <div class="filter-row" style="margin-bottom:10px;">
+        <button class="tab-btn period-btn" data-period="1h" onclick="setMyHistoryPeriod_('1h')">1 Jam Terakhir</button>
         <button class="tab-btn period-btn" data-period="4h" onclick="setMyHistoryPeriod_('4h')">4 Jam Terakhir</button>
         <button class="tab-btn period-btn active" data-period="today" onclick="setMyHistoryPeriod_('today')">Hari Ini</button>
         <button class="tab-btn period-btn" data-period="week" onclick="setMyHistoryPeriod_('week')">Minggu Ini</button>
@@ -196,6 +198,7 @@
 
       <div class="tab-panel active" id="tab-overview">
         <div class="filter-row" style="margin-bottom:14px;">
+          <button class="tab-btn period-btn" data-period="1h" onclick="setPeriod_('1h')">1 Jam Terakhir</button>
           <button class="tab-btn period-btn" data-period="4h" onclick="setPeriod_('4h')">4 Jam Terakhir</button>
           <button class="tab-btn period-btn active" data-period="today" onclick="setPeriod_('today')">Hari Ini</button>
           <button class="tab-btn period-btn" data-period="week" onclick="setPeriod_('week')">Minggu Ini (7 Hari)</button>
@@ -658,7 +661,7 @@
   let picListCache = [];
   let picModalMode = 'add';
   let currentPeriod_ = 'today';
-  const PERIOD_LABELS_ = { '4h': '4 Jam Terakhir', 'today': 'Hari Ini', 'week': 'Minggu Ini (7 Hari)' };
+  const PERIOD_LABELS_ = { '1h': '1 Jam Terakhir', '4h': '4 Jam Terakhir', 'today': 'Hari Ini', 'week': 'Minggu Ini (7 Hari)' };
 
   function setPeriod_(period) {
     currentPeriod_ = period;
@@ -772,9 +775,20 @@
       document.getElementById('picTable').innerHTML = pics.map(function (p, i) {
         return '<tr><td>' + escapeHtml_(p.PICID) + '</td><td>' + escapeHtml_(p.Nama) + '</td><td>' + escapeHtml_(p.Role) + '</td>' +
           '<td><span class="pill ' + (p.StatusAktif === 'Aktif' ? 'ACTIVE' : 'NONAKTIF') + '">' + escapeHtml_(p.StatusAktif) + '</span></td>' +
-          '<td><button class="btn-secondary" onclick="openEditPicModalByIndex(' + i + ')">Edit</button></td></tr>';
+          '<td style="display:flex; gap:6px;"><button class="btn-secondary" onclick="openEditPicModalByIndex(' + i + ')">Edit</button>' +
+          '<button class="btn-danger" onclick="confirmDeletePic_(' + i + ')">Hapus</button></td></tr>';
       }).join('');
     });
+  }
+
+  function confirmDeletePic_(i) {
+    const p = picListCache[i];
+    if (!confirm('Hapus akun ' + p.Nama + ' (' + p.PICID + ')? Tindakan ini tidak bisa dibatalkan.')) return;
+    callApi('deletePic', { actorId: CURRENT_USER.picId, actorName: CURRENT_USER.name, picId: p.PICID }).then(function (res) {
+      if (!res.success) { alert('Gagal: ' + res.message); return; }
+      loadPicManagementTable_();
+      loadPicListForFilters_();
+    }).catch(function (e) { alert('Gagal: ' + e); });
   }
 
   function openEditPicModalByIndex(i) { openEditPicModal(picListCache[i]); }
@@ -813,7 +827,7 @@
         .then(function () { closePicModal(); loadPicManagementTable_(); loadPicListForFilters_(); })
         .catch(function (e) { alert('Gagal: ' + e); });
     } else {
-      const changes = { name: name, statusAktif: status };
+      const changes = { name: name, role: role, statusAktif: status };
       if (pin) changes.pin = pin;
       callApi('updatePic', { actorId: CURRENT_USER.picId, actorName: CURRENT_USER.name, picId: picId, changes: changes })
         .then(function () { closePicModal(); loadPicManagementTable_(); })
