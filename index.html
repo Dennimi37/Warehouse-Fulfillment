@@ -101,6 +101,7 @@
   <!-- ============ GANTI URL INI setelah Deploy Apps Script ============ -->
   <script>
     const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzEWwJZCbxATPRPYISgG4IOD5FKiFaINswszA8qu1UMLFV9JjI90asOi5dS9ttWuFvR/exec';
+    const API_PROXY_URL = 'https://fulfillment.deniikhsan495.workers.dev';
   </script>
   <!-- ==================================================================== -->
 
@@ -296,47 +297,14 @@
   // Content-Type text/plain sengaja dipakai supaya browser TIDAK mengirim
   // preflight OPTIONS (yang tidak didukung Apps Script) — body tetap JSON.
   // ================================================================
-  // Komunikasi ke Apps Script pakai iframe tersembunyi + postMessage.
-  // Ini lebih reliable dibanding fetch()/JSONP untuk pemanggilan lintas-domain ke Apps Script.
-  let pmCounter_ = 0;
-  const pmPending_ = {};
-  let pmListenerReady_ = false;
-
-  function ensurePmListener_() {
-    if (pmListenerReady_) return;
-    pmListenerReady_ = true;
-    window.addEventListener('message', function (event) {
-      const d = event.data;
-      if (!d || !d.__wpc) return;
-      const entry = pmPending_[d.requestId];
-      if (entry) { delete pmPending_[d.requestId]; entry(d.data); }
-    });
-  }
-
+  // Komunikasi ke server lewat Cloudflare Worker (jembatan/proxy).
+  // Worker yang manggil Apps Script dari sisi server (bukan browser), jadi
+  // tidak kena aturan CORS/iframe apapun dari Google.
   function callApi(action, payload) {
-    ensurePmListener_();
-    return new Promise(function (resolve, reject) {
-      const requestId = 'r' + (pmCounter_++) + '_' + Date.now();
-      const url = APPS_SCRIPT_URL + '?pm=1&requestId=' + encodeURIComponent(requestId) +
-        '&action=' + encodeURIComponent(action) + '&payload=' + encodeURIComponent(JSON.stringify(payload || {}));
-
-      const iframe = document.createElement('iframe');
-      iframe.style.display = 'none';
-
-      function cleanup() { if (iframe.parentNode) iframe.parentNode.removeChild(iframe); }
-
-      pmPending_[requestId] = function (data) { cleanup(); resolve(data); };
-
-      iframe.onerror = function () {
-        if (pmPending_[requestId]) { delete pmPending_[requestId]; cleanup(); reject(new Error('Gagal memuat dari server (cek APPS_SCRIPT_URL / koneksi)')); }
-      };
-
-      setTimeout(function () {
-        if (pmPending_[requestId]) { delete pmPending_[requestId]; cleanup(); reject(new Error('Timeout menghubungi server')); }
-      }, 15000);
-
-      iframe.src = url;
-      document.body.appendChild(iframe);
+    const params = new URLSearchParams({ api: '1', action: action, payload: JSON.stringify(payload || {}) });
+    return fetch(API_PROXY_URL + '?' + params.toString()).then(function (res) {
+      if (!res.ok) throw new Error('Server merespons status ' + res.status);
+      return res.json();
     });
   }
 
@@ -349,8 +317,8 @@
     const errEl = document.getElementById('loginError');
     errEl.textContent = '';
 
-    if (APPS_SCRIPT_URL.indexOf('PASTE_URL') > -1) {
-      errEl.textContent = 'APPS_SCRIPT_URL belum diisi di dalam file HTML ini.';
+    if (API_PROXY_URL.indexOf('PASTE_URL') > -1) {
+      errEl.textContent = 'API_PROXY_URL belum diisi di dalam file HTML ini.';
       return;
     }
     if (!nama || !pin) { errEl.textContent = 'Nama dan PIN wajib diisi.'; return; }
