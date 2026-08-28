@@ -197,11 +197,16 @@
       </div>
 
       <div class="tab-panel active" id="tab-overview">
-        <div class="filter-row" style="margin-bottom:14px;">
+        <div class="filter-row" style="margin-bottom:10px;">
           <button class="tab-btn period-btn" data-period="1h" onclick="setPeriod_('1h')">1 Jam Terakhir</button>
           <button class="tab-btn period-btn" data-period="4h" onclick="setPeriod_('4h')">4 Jam Terakhir</button>
           <button class="tab-btn period-btn active" data-period="today" onclick="setPeriod_('today')">Hari Ini</button>
           <button class="tab-btn period-btn" data-period="week" onclick="setPeriod_('week')">Minggu Ini (7 Hari)</button>
+        </div>
+        <div class="filter-row" style="margin-bottom:14px;">
+          <div class="field"><label>Dari tanggal</label><input type="date" id="ovStart"></div>
+          <div class="field"><label>Sampai tanggal</label><input type="date" id="ovEnd"></div>
+          <button class="btn-primary" onclick="applyCustomOverviewRange_()">Terapkan Tanggal</button>
         </div>
         <div class="overview-grid" id="ovGrid"></div>
         <div class="panel-box">
@@ -667,12 +672,32 @@
   let picListCache = [];
   let picModalMode = 'add';
   let currentPeriod_ = 'today';
+  let customOvStart_ = null;
+  let customOvEnd_ = null;
   let picStatsPeriod_ = 'today';
   const PERIOD_LABELS_ = { '1h': '1 Jam Terakhir', '4h': '4 Jam Terakhir', 'today': 'Hari Ini', 'week': 'Minggu Ini (7 Hari)' };
 
   function setPeriod_(period) {
     currentPeriod_ = period;
-    document.querySelectorAll('.period-btn').forEach(function (b) { b.classList.toggle('active', b.dataset.period === period); });
+    customOvStart_ = null; customOvEnd_ = null;
+    document.querySelectorAll('#tab-overview .period-btn').forEach(function (b) { b.classList.toggle('active', b.dataset.period === period); });
+    refreshOverview();
+  }
+
+  function toSheetDateOv_(v) {
+    if (!v) return '';
+    const p = v.split('-'); // yyyy-mm-dd
+    return p[2] + '-' + p[1] + '-' + p[0];
+  }
+
+  function applyCustomOverviewRange_() {
+    const s = document.getElementById('ovStart').value;
+    const e = document.getElementById('ovEnd').value;
+    if (!s || !e) { alert('Pilih tanggal mulai dan akhir dulu.'); return; }
+    currentPeriod_ = 'custom';
+    customOvStart_ = toSheetDateOv_(s);
+    customOvEnd_ = toSheetDateOv_(e);
+    document.querySelectorAll('#tab-overview .period-btn').forEach(function (b) { b.classList.remove('active'); });
     refreshOverview();
   }
 
@@ -694,14 +719,15 @@
   }
 
   function refreshOverview() {
-    callApi('getDashboardOverview', { period: currentPeriod_ }).then(renderOverview_).catch(function (e) { console.error(e); });
+    callApi('getDashboardOverview', { period: currentPeriod_, customStart: customOvStart_, customEnd: customOvEnd_ }).then(renderOverview_).catch(function (e) { console.error(e); });
   }
 
   function renderOverview_(d) {
-    document.getElementById('perPicTitle').textContent = 'Klasemen PIC — ' + PERIOD_LABELS_[d.period];
+    const label = d.period === 'custom' ? 'Custom' : PERIOD_LABELS_[d.period];
+    document.getElementById('perPicTitle').textContent = 'Klasemen PIC — ' + label;
     document.getElementById('ovGrid').innerHTML = [
-      ['Total Scan (' + PERIOD_LABELS_[d.period] + ')', d.totalScanToday], ['Valid', d.totalValid], ['Duplicate', d.totalDuplicate],
-      ['Error', d.totalError], ['Total Resi Unik', d.totalUniqueReceipts], ['PIC Aktif', d.activePicCount]
+      ['Total Scan (' + label + ')', d.totalScanToday], ['Valid', d.totalValid], ['Duplicate', d.totalDuplicate],
+      ['Error', d.totalError], ['PIC Aktif', d.activePicCount]
     ].map(function (x) { return '<div class="ov-card"><div class="n">' + x[1] + '</div><div class="l">' + x[0] + '</div></div>'; }).join('');
 
     document.getElementById('perPicTable').innerHTML = d.perPic.map(function (p) {
