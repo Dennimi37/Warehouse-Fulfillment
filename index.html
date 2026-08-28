@@ -153,6 +153,7 @@
     <div class="queue-note" id="queueNote"></div>
 
     <button style="width:100%; margin-top:14px; background:var(--panel-2); color:var(--text); border:1px solid var(--border);" onclick="openMyHistory_()">📋 Riwayat &amp; Hasil Kerja Saya</button>
+    <button style="width:100%; margin-top:10px; background:var(--panel-2); color:var(--text); border:1px solid var(--border);" onclick="openDailyReportPic_()">📅 Laporan Harian (Absensi)</button>
   </div>
 
   <div class="modal-backdrop hidden" id="historyModalBackdrop">
@@ -172,6 +173,24 @@
       </div>
       <table><thead><tr><th>Resi</th><th>Tanggal</th><th>Jam</th><th>Status</th></tr></thead><tbody id="myHistoryTable"></tbody></table>
       <div class="modal-actions"><button style="width:100%; background:var(--panel-2); color:var(--text); border:1px solid var(--border);" onclick="closeMyHistory_()">Tutup</button></div>
+    </div>
+  </div>
+
+  <div class="modal-backdrop hidden" id="dailyReportPicModalBackdrop">
+    <div class="modal" style="max-width:440px; max-height:80vh; overflow-y:auto;">
+      <h3 style="margin-top:0;">📅 Laporan Harian</h3>
+      <p style="color:var(--muted); font-size:12px; margin-top:-8px;">1 laporan per tanggal — isi ulang di tanggal yang sama akan menimpa laporan sebelumnya.</p>
+      <div class="field"><label>Tanggal</label><input type="date" id="drPicDate"></div>
+      <div class="field"><label>Scan</label><input type="number" id="drPicScan" inputmode="numeric" placeholder="Contoh: 300"></div>
+      <div class="field"><label>Stock</label><input type="number" id="drPicStock" inputmode="numeric" placeholder="Contoh: 120"></div>
+      <div class="field"><label>Jam Lembur (opsional)</label><input type="number" id="drPicLembur" inputmode="decimal" step="0.5" placeholder="Contoh: 2"></div>
+      <div class="modal-actions">
+        <button style="background:var(--panel-2); color:var(--text); border:1px solid var(--border);" onclick="closeDailyReportPic_()">Tutup</button>
+        <button class="btn-primary" onclick="submitDailyReportPic_()">Simpan</button>
+      </div>
+      <p id="drPicMsg" style="font-size:13px; min-height:18px;"></p>
+      <h4 style="margin-bottom:8px;">Riwayat Laporan Saya</h4>
+      <table><thead><tr><th>Tanggal</th><th>Scan</th><th>Stock</th><th>Lembur</th></tr></thead><tbody id="drPicHistoryTable"></tbody></table>
     </div>
   </div>
 
@@ -208,6 +227,7 @@
       </div>
 
       <button style="width:100%; margin-top:6px; background:var(--panel-2); color:var(--text); border:1px solid var(--border);" onclick="openMyCsHistory_()">📋 Riwayat &amp; Hasil Kerja Saya</button>
+      <button style="width:100%; margin-top:10px; background:var(--panel-2); color:var(--text); border:1px solid var(--border);" onclick="openDailyReportCs_()">📅 Laporan Harian (Absensi)</button>
     </div>
   </div>
 
@@ -230,6 +250,24 @@
     </div>
   </div>
 
+  <div class="modal-backdrop hidden" id="dailyReportCsModalBackdrop">
+    <div class="modal" style="max-width:440px; max-height:80vh; overflow-y:auto;">
+      <h3 style="margin-top:0;">📅 Laporan Harian</h3>
+      <p style="color:var(--muted); font-size:12px; margin-top:-8px;">1 laporan per tanggal — isi ulang di tanggal yang sama akan menimpa laporan sebelumnya.</p>
+      <div class="field"><label>Tanggal</label><input type="date" id="drCsDate"></div>
+      <div class="field"><label>Sesi</label><input type="number" id="drCsSession" inputmode="numeric" placeholder="Contoh: 3"></div>
+      <div class="field"><label>Qty Cetak</label><input type="number" id="drCsQty" inputmode="numeric" placeholder="Contoh: 150"></div>
+      <div class="field"><label>Jam Lembur (opsional)</label><input type="number" id="drCsLembur" inputmode="decimal" step="0.5" placeholder="Contoh: 2"></div>
+      <div class="modal-actions">
+        <button style="background:var(--panel-2); color:var(--text); border:1px solid var(--border);" onclick="closeDailyReportCs_()">Tutup</button>
+        <button class="btn-primary" onclick="submitDailyReportCs_()">Simpan</button>
+      </div>
+      <p id="drCsMsg" style="font-size:13px; min-height:18px;"></p>
+      <h4 style="margin-bottom:8px;">Riwayat Laporan Saya</h4>
+      <table><thead><tr><th>Tanggal</th><th>Sesi</th><th>Qty</th><th>Lembur</th></tr></thead><tbody id="drCsHistoryTable"></tbody></table>
+    </div>
+  </div>
+
   <div id="dashboardView" class="hidden">
     <div class="topbar">
       <div>
@@ -249,6 +287,7 @@
         <button class="tab-btn" data-tab="history" onclick="switchTab('history')">Histori &amp; Filter</button>
         <button class="tab-btn" data-tab="pic" onclick="switchTab('pic')">Kelola PIC</button>
         <button class="tab-btn" data-tab="cs" onclick="switchTab('cs')">CS Activity</button>
+        <button class="tab-btn" data-tab="daily" onclick="switchTab('daily')">Laporan Harian</button>
         <button class="tab-btn" data-tab="audit" onclick="switchTab('audit')">Audit Log</button>
       </div>
 
@@ -345,6 +384,18 @@
         <div class="panel-box">
           <h3 style="margin-top:0;" id="csPerPersonTitle">Klasemen CS — Hari Ini</h3>
           <table><thead><tr><th>#</th><th>Nama</th><th>Session</th><th>Qty Cetak</th><th>Jumlah Entri</th></tr></thead><tbody id="csPerPersonTable"></tbody></table>
+        </div>
+      </div>
+
+      <div class="tab-panel" id="tab-daily">
+        <div class="panel-box">
+          <div class="filter-row" style="margin-bottom:14px;">
+            <div class="field"><label>Dari tanggal</label><input type="date" id="dailyStart"></div>
+            <div class="field"><label>Sampai tanggal</label><input type="date" id="dailyEnd"></div>
+            <button class="btn-primary" onclick="loadDailyReportsList_()">Terapkan</button>
+            <button class="btn-secondary" onclick="clearDailyReportsFilter_()">Tampilkan Semua</button>
+          </div>
+          <table><thead><tr><th>Tanggal</th><th>Nama</th><th>Role</th><th>Scan</th><th>Stock</th><th>Session</th><th>Qty Cetak</th><th>Lembur</th></tr></thead><tbody id="dailyReportsTable"></tbody></table>
         </div>
       </div>
 
@@ -745,6 +796,68 @@
     document.getElementById('historyModalBackdrop').classList.add('hidden');
   }
 
+  // ---------------- LAPORAN HARIAN (ABSENSI) — PIC ----------------
+  function toSheetDateDr_(v) {
+    if (!v) return '';
+    const p = v.split('-'); // yyyy-mm-dd
+    return p[2] + '-' + p[1] + '-' + p[0];
+  }
+
+  function openDailyReportPic_() {
+    document.getElementById('dailyReportPicModalBackdrop').classList.remove('hidden');
+    document.getElementById('drPicMsg').textContent = '';
+    if (!document.getElementById('drPicDate').value) {
+      document.getElementById('drPicDate').value = new Date().toISOString().slice(0, 10);
+    }
+    loadMyDailyReportsPic_();
+  }
+
+  function closeDailyReportPic_() {
+    document.getElementById('dailyReportPicModalBackdrop').classList.add('hidden');
+  }
+
+  function submitDailyReportPic_() {
+    const dateVal = document.getElementById('drPicDate').value;
+    const scan = document.getElementById('drPicScan').value;
+    const stock = document.getElementById('drPicStock').value;
+    const lembur = document.getElementById('drPicLembur').value;
+    if (!dateVal || scan === '' || stock === '') {
+      document.getElementById('drPicMsg').textContent = 'Tanggal, Scan, dan Stock wajib diisi.';
+      document.getElementById('drPicMsg').style.color = 'var(--red)';
+      return;
+    }
+    const dateStr = toSheetDateDr_(dateVal);
+    document.getElementById('drPicMsg').textContent = 'Menyimpan...';
+    document.getElementById('drPicMsg').style.color = 'var(--muted)';
+
+    callApi('submitDailyReport', { picId: CURRENT_USER.picId, picName: CURRENT_USER.name, role: CURRENT_USER.role, date: dateStr, scan: scan, stock: stock, session: '', qtyCetak: '', lembur: lembur })
+      .then(function (res) {
+        if (!res || !res.success) {
+          document.getElementById('drPicMsg').textContent = 'Gagal: ' + (res && res.message ? res.message : 'tidak dikenal server');
+          document.getElementById('drPicMsg').style.color = 'var(--red)';
+          return;
+        }
+        document.getElementById('drPicMsg').textContent = res.updated ? 'Laporan diperbarui.' : 'Laporan tersimpan.';
+        document.getElementById('drPicMsg').style.color = 'var(--green)';
+        loadMyDailyReportsPic_();
+      })
+      .catch(function (e) {
+        document.getElementById('drPicMsg').textContent = 'Gagal: ' + e;
+        document.getElementById('drPicMsg').style.color = 'var(--red)';
+      });
+  }
+
+  function loadMyDailyReportsPic_() {
+    document.getElementById('drPicHistoryTable').innerHTML = '<tr><td colspan="4" style="color:var(--muted)">Memuat...</td></tr>';
+    callApi('getMyDailyReports', { picId: CURRENT_USER.picId, limit: 30 }).then(function (rows) {
+      document.getElementById('drPicHistoryTable').innerHTML = rows.map(function (r) {
+        return '<tr><td>' + r.Date + '</td><td>' + r.Scan + '</td><td>' + r.Stock + '</td><td>' + (r.Lembur || '-') + '</td></tr>';
+      }).join('') || '<tr><td colspan="4" style="color:var(--muted)">Belum ada laporan</td></tr>';
+    }).catch(function (e) {
+      document.getElementById('drPicHistoryTable').innerHTML = '<tr><td colspan="4" style="color:var(--red)">Gagal memuat: ' + e + '</td></tr>';
+    });
+  }
+
   // ================================================================
   // CS ADMIN ACTIVITY — input Session + Qty Cetak
   // ================================================================
@@ -828,6 +941,62 @@
     document.getElementById('csHistoryModalBackdrop').classList.add('hidden');
   }
 
+  // ---------------- LAPORAN HARIAN (ABSENSI) — CS ----------------
+  function openDailyReportCs_() {
+    document.getElementById('dailyReportCsModalBackdrop').classList.remove('hidden');
+    document.getElementById('drCsMsg').textContent = '';
+    if (!document.getElementById('drCsDate').value) {
+      document.getElementById('drCsDate').value = new Date().toISOString().slice(0, 10);
+    }
+    loadMyDailyReportsCs_();
+  }
+
+  function closeDailyReportCs_() {
+    document.getElementById('dailyReportCsModalBackdrop').classList.add('hidden');
+  }
+
+  function submitDailyReportCs_() {
+    const dateVal = document.getElementById('drCsDate').value;
+    const session = document.getElementById('drCsSession').value;
+    const qty = document.getElementById('drCsQty').value;
+    const lembur = document.getElementById('drCsLembur').value;
+    if (!dateVal || session === '' || qty === '') {
+      document.getElementById('drCsMsg').textContent = 'Tanggal, Sesi, dan Qty Cetak wajib diisi.';
+      document.getElementById('drCsMsg').style.color = 'var(--red)';
+      return;
+    }
+    const dateStr = toSheetDateDr_(dateVal);
+    document.getElementById('drCsMsg').textContent = 'Menyimpan...';
+    document.getElementById('drCsMsg').style.color = 'var(--muted)';
+
+    callApi('submitDailyReport', { picId: CURRENT_USER.picId, picName: CURRENT_USER.name, role: CURRENT_USER.role, date: dateStr, stock: '', session: session, qtyCetak: qty, lembur: lembur })
+      .then(function (res) {
+        if (!res || !res.success) {
+          document.getElementById('drCsMsg').textContent = 'Gagal: ' + (res && res.message ? res.message : 'tidak dikenal server');
+          document.getElementById('drCsMsg').style.color = 'var(--red)';
+          return;
+        }
+        document.getElementById('drCsMsg').textContent = res.updated ? 'Laporan diperbarui.' : 'Laporan tersimpan.';
+        document.getElementById('drCsMsg').style.color = 'var(--green)';
+        loadMyDailyReportsCs_();
+      })
+      .catch(function (e) {
+        document.getElementById('drCsMsg').textContent = 'Gagal: ' + e;
+        document.getElementById('drCsMsg').style.color = 'var(--red)';
+      });
+  }
+
+  function loadMyDailyReportsCs_() {
+    document.getElementById('drCsHistoryTable').innerHTML = '<tr><td colspan="4" style="color:var(--muted)">Memuat...</td></tr>';
+    callApi('getMyDailyReports', { picId: CURRENT_USER.picId, limit: 30 }).then(function (rows) {
+      document.getElementById('drCsHistoryTable').innerHTML = rows.map(function (r) {
+        return '<tr><td>' + r.Date + '</td><td>' + r.Session + '</td><td>' + r.QtyCetak + '</td><td>' + (r.Lembur || '-') + '</td></tr>';
+      }).join('') || '<tr><td colspan="4" style="color:var(--muted)">Belum ada laporan</td></tr>';
+    }).catch(function (e) {
+      document.getElementById('drCsHistoryTable').innerHTML = '<tr><td colspan="4" style="color:var(--red)">Gagal memuat: ' + e + '</td></tr>';
+    });
+  }
+
   function escapeHtml_(v) {
     return String(v === null || v === undefined ? '' : v).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
   }
@@ -873,6 +1042,7 @@
     refreshOverview();
     loadPicManagementTable_();
     refreshCsOverview_();
+    loadDailyReportsList_();
     loadAuditLog_();
     setInterval(function () {
       const activeTab = document.querySelector('.tab-btn.active').dataset.tab;
@@ -1089,6 +1259,34 @@
     document.getElementById('csPerPersonTable').innerHTML = d.perPerson.map(function (p) {
       return '<tr><td>' + p.rank + '</td><td>' + escapeHtml_(p.name) + '</td><td>' + p.session + '</td><td>' + p.qtyCetak + '</td><td>' + p.entries + '</td></tr>';
     }).join('') || '<tr><td colspan="5" style="color:var(--muted)">Belum ada entri pada periode ini</td></tr>';
+  }
+
+  // ---------------- LAPORAN HARIAN ----------------
+  function toSheetDateOv2_(v) {
+    if (!v) return '';
+    const p = v.split('-'); // yyyy-mm-dd
+    return p[2] + '-' + p[1] + '-' + p[0];
+  }
+
+  function loadDailyReportsList_() {
+    const s = document.getElementById('dailyStart').value;
+    const e = document.getElementById('dailyEnd').value;
+    const startDate = toSheetDateOv2_(s);
+    const endDate = toSheetDateOv2_(e);
+    document.getElementById('dailyReportsTable').innerHTML = '<tr><td colspan="8" style="color:var(--muted)">Memuat...</td></tr>';
+    callApi('getDailyReportsList', { startDate: startDate, endDate: endDate }).then(function (rows) {
+      document.getElementById('dailyReportsTable').innerHTML = rows.map(function (r) {
+        return '<tr><td>' + r.Date + '</td><td>' + escapeHtml_(r.PICName) + '</td><td>' + escapeHtml_(r.Role) + '</td><td>' + (r.Scan || '') + '</td><td>' + (r.Stock || '') + '</td><td>' + (r.Session || '') + '</td><td>' + (r.QtyCetak || '') + '</td><td>' + (r.Lembur || '') + '</td></tr>';
+      }).join('') || '<tr><td colspan="8" style="color:var(--muted)">Belum ada laporan</td></tr>';
+    }).catch(function (err) {
+      document.getElementById('dailyReportsTable').innerHTML = '<tr><td colspan="8" style="color:var(--red)">Gagal memuat: ' + err + '</td></tr>';
+    });
+  }
+
+  function clearDailyReportsFilter_() {
+    document.getElementById('dailyStart').value = '';
+    document.getElementById('dailyEnd').value = '';
+    loadDailyReportsList_();
   }
 
   function loadAuditLog_() {
