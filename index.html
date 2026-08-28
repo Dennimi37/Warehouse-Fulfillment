@@ -175,6 +175,61 @@
     </div>
   </div>
 
+  <div id="csView" class="hidden">
+    <div class="topbar">
+      <div>
+        <div class="title">WAREHOUSE PACKAGE CHECKER</div>
+        <div class="who" id="csWho"></div>
+      </div>
+      <div class="actions">
+        <button class="icon-btn" onclick="doLogout()">Keluar</button>
+      </div>
+    </div>
+
+    <div style="max-width:480px; margin:0 auto; padding:16px;">
+      <div class="scan-box">
+        <label>SESSION</label>
+        <input id="csSessionInput" type="number" inputmode="numeric" min="0" placeholder="Contoh: 1" style="font-size:22px; text-align:center; padding:16px;">
+      </div>
+      <div class="scan-box">
+        <label>QTY CETAK</label>
+        <input id="csQtyInput" type="number" inputmode="numeric" min="0" placeholder="Contoh: 25" style="font-size:22px; text-align:center; padding:16px;">
+      </div>
+      <div class="scan-box">
+        <label>CATATAN (OPSIONAL)</label>
+        <input id="csNotesInput" placeholder="Catatan tambahan...">
+      </div>
+
+      <button class="btn-primary" id="csSubmitBtn" style="width:100%; padding:14px; font-size:16px;" onclick="submitCsEntry_()">SIMPAN</button>
+
+      <div class="status-panel" id="csStatusPanel" style="margin-top:16px;">
+        <div class="icon" id="csStatusIcon">⚪</div>
+        <div class="msg" id="csStatusMsg">Isi Session &amp; Qty Cetak, lalu Simpan</div>
+      </div>
+
+      <button style="width:100%; margin-top:6px; background:var(--panel-2); color:var(--text); border:1px solid var(--border);" onclick="openMyCsHistory_()">📋 Riwayat &amp; Hasil Kerja Saya</button>
+    </div>
+  </div>
+
+  <div class="modal-backdrop hidden" id="csHistoryModalBackdrop">
+    <div class="modal" style="max-width:480px; max-height:80vh; overflow-y:auto;">
+      <h3 style="margin-top:0;">📋 Riwayat &amp; Hasil Kerja Saya</h3>
+      <div class="filter-row" style="margin-bottom:10px;">
+        <button class="tab-btn period-btn" data-period="1h" onclick="setCsHistoryPeriod_('1h')">1 Jam Terakhir</button>
+        <button class="tab-btn period-btn" data-period="4h" onclick="setCsHistoryPeriod_('4h')">4 Jam Terakhir</button>
+        <button class="tab-btn period-btn active" data-period="today" onclick="setCsHistoryPeriod_('today')">Hari Ini</button>
+        <button class="tab-btn period-btn" data-period="week" onclick="setCsHistoryPeriod_('week')">Minggu Ini</button>
+      </div>
+      <div class="stats-grid" style="grid-template-columns:repeat(3,1fr); margin-bottom:14px;">
+        <div class="stat-card valid"><div class="n" id="csRepSession">0</div><div class="l">TOTAL SESSION</div></div>
+        <div class="stat-card total"><div class="n" id="csRepQty">0</div><div class="l">TOTAL QTY CETAK</div></div>
+        <div class="stat-card duplicate"><div class="n" id="csRepCount">0</div><div class="l">JUMLAH ENTRI</div></div>
+      </div>
+      <table><thead><tr><th>Session</th><th>Qty</th><th>Tanggal</th><th>Jam</th><th>Catatan</th></tr></thead><tbody id="csHistoryTable"></tbody></table>
+      <div class="modal-actions"><button style="width:100%; background:var(--panel-2); color:var(--text); border:1px solid var(--border);" onclick="closeMyCsHistory_()">Tutup</button></div>
+    </div>
+  </div>
+
   <div id="dashboardView" class="hidden">
     <div class="topbar">
       <div>
@@ -193,6 +248,7 @@
         <button class="tab-btn" data-tab="search" onclick="switchTab('search')">Search Resi</button>
         <button class="tab-btn" data-tab="history" onclick="switchTab('history')">Histori &amp; Filter</button>
         <button class="tab-btn" data-tab="pic" onclick="switchTab('pic')">Kelola PIC</button>
+        <button class="tab-btn" data-tab="cs" onclick="switchTab('cs')">CS Activity</button>
         <button class="tab-btn" data-tab="audit" onclick="switchTab('audit')">Audit Log</button>
       </div>
 
@@ -268,6 +324,25 @@
         </div>
       </div>
 
+      <div class="tab-panel" id="tab-cs">
+        <div class="filter-row" style="margin-bottom:10px;">
+          <button class="tab-btn period-btn" data-period="1h" onclick="setCsPeriod_('1h')">1 Jam Terakhir</button>
+          <button class="tab-btn period-btn" data-period="4h" onclick="setCsPeriod_('4h')">4 Jam Terakhir</button>
+          <button class="tab-btn period-btn active" data-period="today" onclick="setCsPeriod_('today')">Hari Ini</button>
+          <button class="tab-btn period-btn" data-period="week" onclick="setCsPeriod_('week')">Minggu Ini (7 Hari)</button>
+        </div>
+        <div class="filter-row" style="margin-bottom:14px;">
+          <div class="field"><label>Dari tanggal</label><input type="date" id="csStart"></div>
+          <div class="field"><label>Sampai tanggal</label><input type="date" id="csEnd"></div>
+          <button class="btn-primary" onclick="applyCustomCsRange_()">Terapkan Tanggal</button>
+        </div>
+        <div class="overview-grid" id="csOvGrid"></div>
+        <div class="panel-box">
+          <h3 style="margin-top:0;" id="csPerPersonTitle">Klasemen CS — Hari Ini</h3>
+          <table><thead><tr><th>#</th><th>Nama</th><th>Session</th><th>Qty Cetak</th><th>Jumlah Entri</th></tr></thead><tbody id="csPerPersonTable"></tbody></table>
+        </div>
+      </div>
+
       <div class="tab-panel" id="tab-audit">
         <div class="panel-box">
           <table><thead><tr><th>Waktu</th><th>User</th><th>Aksi</th><th>Resi</th><th>Keterangan</th></tr></thead><tbody id="auditTable"></tbody></table>
@@ -282,7 +357,7 @@
       <div class="field"><label>PIC ID</label><input id="mPicId"></div>
       <div class="field"><label>Nama</label><input id="mPicName"></div>
       <div class="field"><label>PIN</label><input id="mPicPin" inputmode="numeric"></div>
-      <div class="field"><label>Role</label><select id="mPicRole"><option value="PIC">PIC</option><option value="Supervisor">Supervisor</option></select></div>
+      <div class="field"><label>Role</label><select id="mPicRole"><option value="PIC">PIC</option><option value="CS">CS</option><option value="Supervisor">Supervisor</option></select></div>
       <div class="field"><label>Status</label><select id="mPicStatus"><option value="Aktif">Aktif</option><option value="Nonaktif">Nonaktif</option></select></div>
       <div class="modal-actions">
         <button class="btn-secondary" onclick="closePicModal()">Batal</button>
@@ -393,6 +468,9 @@
       window.addEventListener('online', refreshNetBadge_);
       window.addEventListener('offline', refreshNetBadge_);
       refreshNetBadge_();
+    } else if (CURRENT_USER.role === 'CS') {
+      document.getElementById('csView').classList.remove('hidden');
+      initCsView();
     } else {
       document.getElementById('dashboardView').classList.remove('hidden');
       initDashboardView();
@@ -662,6 +740,81 @@
     document.getElementById('historyModalBackdrop').classList.add('hidden');
   }
 
+  // ================================================================
+  // CS ADMIN ACTIVITY — input Session + Qty Cetak
+  // ================================================================
+  let csHistoryPeriod_ = 'today';
+
+  function initCsView() {
+    document.getElementById('csWho').textContent = CURRENT_USER.name + ' (' + CURRENT_USER.role + ')';
+  }
+
+  function submitCsEntry_() {
+    const session = document.getElementById('csSessionInput').value;
+    const qty = document.getElementById('csQtyInput').value;
+    const notes = document.getElementById('csNotesInput').value.trim();
+
+    if (session === '' || qty === '') {
+      renderCsStatus_('invalid', '🔴', 'Session dan Qty Cetak wajib diisi');
+      return;
+    }
+
+    document.getElementById('csSubmitBtn').disabled = true;
+    document.getElementById('csSubmitBtn').textContent = 'MENYIMPAN...';
+
+    callApi('submitCsActivity', { picId: CURRENT_USER.picId, picName: CURRENT_USER.name, session: session, qtyCetak: qty, notes: notes })
+      .then(function () {
+        document.getElementById('csSubmitBtn').disabled = false;
+        document.getElementById('csSubmitBtn').textContent = 'SIMPAN';
+        renderCsStatus_('valid', '🟢', 'Tersimpan! Session: ' + session + ', Qty Cetak: ' + qty);
+        document.getElementById('csSessionInput').value = '';
+        document.getElementById('csQtyInput').value = '';
+        document.getElementById('csNotesInput').value = '';
+        document.getElementById('csSessionInput').focus();
+      })
+      .catch(function (e) {
+        document.getElementById('csSubmitBtn').disabled = false;
+        document.getElementById('csSubmitBtn').textContent = 'SIMPAN';
+        renderCsStatus_('error', '🔴', 'Gagal menyimpan: ' + e);
+      });
+  }
+
+  function renderCsStatus_(cls, icon, msg) {
+    const panel = document.getElementById('csStatusPanel');
+    panel.className = 'status-panel ' + cls;
+    document.getElementById('csStatusIcon').textContent = icon;
+    document.getElementById('csStatusMsg').textContent = msg;
+  }
+
+  function setCsHistoryPeriod_(period) {
+    csHistoryPeriod_ = period;
+    document.querySelectorAll('#csHistoryModalBackdrop .period-btn').forEach(function (b) { b.classList.toggle('active', b.dataset.period === period); });
+    loadMyCsHistoryData_();
+  }
+
+  function openMyCsHistory_() {
+    document.getElementById('csHistoryModalBackdrop').classList.remove('hidden');
+    loadMyCsHistoryData_();
+  }
+
+  function loadMyCsHistoryData_() {
+    document.getElementById('csHistoryTable').innerHTML = '<tr><td colspan="5" style="color:var(--muted)">Memuat...</td></tr>';
+    callApi('getMyCsReport', { picId: CURRENT_USER.picId, period: csHistoryPeriod_ }).then(function (rep) {
+      document.getElementById('csRepSession').textContent = rep.totalSession;
+      document.getElementById('csRepQty').textContent = rep.totalQtyCetak;
+      document.getElementById('csRepCount').textContent = rep.entryCount;
+      document.getElementById('csHistoryTable').innerHTML = rep.items.map(function (r) {
+        return '<tr><td>' + r.session + '</td><td>' + r.qtyCetak + '</td><td>' + r.date + '</td><td>' + r.time + '</td><td>' + escapeHtml_(r.notes) + '</td></tr>';
+      }).join('') || '<tr><td colspan="5" style="color:var(--muted)">Belum ada entri pada periode ini</td></tr>';
+    }).catch(function (e) {
+      document.getElementById('csHistoryTable').innerHTML = '<tr><td colspan="5" style="color:var(--red)">Gagal memuat: ' + e + '</td></tr>';
+    });
+  }
+
+  function closeMyCsHistory_() {
+    document.getElementById('csHistoryModalBackdrop').classList.add('hidden');
+  }
+
   function escapeHtml_(v) {
     return String(v === null || v === undefined ? '' : v).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
   }
@@ -706,6 +859,7 @@
     loadPicListForFilters_();
     refreshOverview();
     loadPicManagementTable_();
+    refreshCsOverview_();
     loadAuditLog_();
     setInterval(function () {
       const activeTab = document.querySelector('.tab-btn.active').dataset.tab;
@@ -873,6 +1027,45 @@
         .then(function () { closePicModal(); loadPicManagementTable_(); })
         .catch(function (e) { alert('Gagal: ' + e); });
     }
+  }
+
+  // ---------------- CS ACTIVITY ----------------
+  let csPeriod_ = 'today';
+  let customCsStart_ = null;
+  let customCsEnd_ = null;
+
+  function setCsPeriod_(period) {
+    csPeriod_ = period;
+    customCsStart_ = null; customCsEnd_ = null;
+    document.querySelectorAll('#tab-cs .period-btn').forEach(function (b) { b.classList.toggle('active', b.dataset.period === period); });
+    refreshCsOverview_();
+  }
+
+  function applyCustomCsRange_() {
+    const s = document.getElementById('csStart').value;
+    const e = document.getElementById('csEnd').value;
+    if (!s || !e) { alert('Pilih tanggal mulai dan akhir dulu.'); return; }
+    csPeriod_ = 'custom';
+    customCsStart_ = toSheetDateOv_(s);
+    customCsEnd_ = toSheetDateOv_(e);
+    document.querySelectorAll('#tab-cs .period-btn').forEach(function (b) { b.classList.remove('active'); });
+    refreshCsOverview_();
+  }
+
+  function refreshCsOverview_() {
+    callApi('getCsOverview', { period: csPeriod_, customStart: customCsStart_, customEnd: customCsEnd_ }).then(renderCsOverview_).catch(function (e) { console.error(e); });
+  }
+
+  function renderCsOverview_(d) {
+    const label = d.period === 'custom' ? 'Custom' : PERIOD_LABELS_[d.period];
+    document.getElementById('csPerPersonTitle').textContent = 'Klasemen CS — ' + label;
+    document.getElementById('csOvGrid').innerHTML = [
+      ['Total Session (' + label + ')', d.totalSession], ['Total Qty Cetak', d.totalQtyCetak], ['Jumlah Entri', d.totalEntries]
+    ].map(function (x) { return '<div class="ov-card"><div class="n">' + x[1] + '</div><div class="l">' + x[0] + '</div></div>'; }).join('');
+
+    document.getElementById('csPerPersonTable').innerHTML = d.perPerson.map(function (p) {
+      return '<tr><td>' + p.rank + '</td><td>' + escapeHtml_(p.name) + '</td><td>' + p.session + '</td><td>' + p.qtyCetak + '</td><td>' + p.entries + '</td></tr>';
+    }).join('') || '<tr><td colspan="5" style="color:var(--muted)">Belum ada entri pada periode ini</td></tr>';
   }
 
   function loadAuditLog_() {
