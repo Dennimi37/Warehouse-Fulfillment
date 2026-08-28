@@ -273,6 +273,11 @@
           <h3 style="margin-top:0;">Aktivitas PIC Real-time</h3>
           <table><thead><tr><th>PIC</th><th>Status</th><th>Last Scan</th><th>Total</th></tr></thead><tbody id="activityTable"></tbody></table>
         </div>
+        <div class="panel-box">
+          <h3 style="margin-top:0;" id="ovCsTitle">CS Activity — Hari Ini</h3>
+          <div class="overview-grid" id="ovCsGrid" style="margin-bottom:14px;"></div>
+          <table><thead><tr><th>#</th><th>Nama</th><th>Session</th><th>Qty Cetak</th><th>Entri</th></tr></thead><tbody id="ovCsTable"></tbody></table>
+        </div>
       </div>
 
       <div class="tab-panel" id="tab-search">
@@ -900,6 +905,16 @@
       const last = a.lastScan ? new Date(a.lastScan).toLocaleTimeString('id-ID') : '-';
       return '<tr><td>' + escapeHtml_(a.name) + '</td><td><span class="pill ' + a.status + '">' + a.status + '</span></td><td>' + last + '</td><td>' + a.total + '</td></tr>';
     }).join('');
+
+    if (d.cs) {
+      document.getElementById('ovCsTitle').textContent = 'CS Activity — ' + label;
+      document.getElementById('ovCsGrid').innerHTML = [
+        ['Total Session', d.cs.totalSession], ['Total Qty Cetak', d.cs.totalQtyCetak], ['Jumlah Entri', d.cs.totalEntries]
+      ].map(function (x) { return '<div class="ov-card"><div class="n">' + x[1] + '</div><div class="l">' + x[0] + '</div></div>'; }).join('');
+      document.getElementById('ovCsTable').innerHTML = d.cs.perPerson.map(function (p) {
+        return '<tr><td>' + p.rank + '</td><td>' + escapeHtml_(p.name) + '</td><td>' + p.session + '</td><td>' + p.qtyCetak + '</td><td>' + p.entries + '</td></tr>';
+      }).join('') || '<tr><td colspan="5" style="color:var(--muted)">Belum ada entri CS pada periode ini</td></tr>';
+    }
   }
 
   function doSearchReceipt() {
