@@ -299,10 +299,8 @@
       <div class="tab-panel active" id="tab-overview">
         <div class="filter-row" style="margin-bottom:10px;">
           <button class="tab-btn period-btn" data-period="1h" onclick="setPeriod_('1h')">1 Jam Terakhir</button>
-          <button class="tab-btn period-btn" data-period="4h" onclick="setPeriod_('4h')">4 Jam Terakhir</button>
           <button class="tab-btn period-btn active" data-period="today" onclick="setPeriod_('today')">Hari Ini</button>
           <button class="tab-btn period-btn" data-period="yesterday" onclick="setPeriod_('yesterday')">Kemarin</button>
-          <button class="tab-btn period-btn" data-period="week" onclick="setPeriod_('week')">Minggu Ini (7 Hari)</button>
         </div>
         <div class="filter-row" style="margin-bottom:14px;">
           <div class="field"><label>Dari tanggal</label><input type="date" id="ovStart"></div>
@@ -311,17 +309,17 @@
         </div>
         <div class="overview-grid" id="ovGrid"></div>
         <div class="panel-box">
+          <h3 style="margin-top:0;" id="ovCsTitle">CS Activity — Hari Ini</h3>
+          <div class="overview-grid" id="ovCsGrid" style="margin-bottom:14px;"></div>
+          <table><thead><tr><th>#</th><th>Nama</th><th>Session</th><th>Qty Cetak</th><th>Entri</th></tr></thead><tbody id="ovCsTable"></tbody></table>
+        </div>
+        <div class="panel-box">
           <h3 style="margin-top:0;" id="perPicTitle">Klasemen Staff — Hari Ini</h3>
           <table><thead><tr><th>#</th><th>Staff</th><th>Valid</th><th>Duplicate</th><th>Error</th><th>Total</th></tr></thead><tbody id="perPicTable"></tbody></table>
         </div>
         <div class="panel-box">
-          <h3 style="margin-top:0;">Aktivitas Staff Real-time</h3>
-          <table><thead><tr><th>Staff</th><th>Status</th><th>Last Scan</th><th>Total</th></tr></thead><tbody id="activityTable"></tbody></table>
-        </div>
-        <div class="panel-box">
-          <h3 style="margin-top:0;" id="ovCsTitle">CS Activity — Hari Ini</h3>
-          <div class="overview-grid" id="ovCsGrid" style="margin-bottom:14px;"></div>
-          <table><thead><tr><th>#</th><th>Nama</th><th>Session</th><th>Qty Cetak</th><th>Entri</th></tr></thead><tbody id="ovCsTable"></tbody></table>
+          <h3 style="margin-top:0;">Aktivitas Real-time</h3>
+          <table><thead><tr><th>Nama</th><th>Role</th><th>Status</th><th>Last Activity</th><th>Total</th></tr></thead><tbody id="activityTable"></tbody></table>
         </div>
       </div>
 
@@ -377,11 +375,7 @@
 
       <div class="tab-panel" id="tab-cs">
         <div class="filter-row" style="margin-bottom:10px;">
-          <button class="tab-btn period-btn" data-period="1h" onclick="setCsPeriod_('1h')">1 Jam Terakhir</button>
-          <button class="tab-btn period-btn" data-period="4h" onclick="setCsPeriod_('4h')">4 Jam Terakhir</button>
           <button class="tab-btn period-btn active" data-period="today" onclick="setCsPeriod_('today')">Hari Ini</button>
-          <button class="tab-btn period-btn" data-period="yesterday" onclick="setCsPeriod_('yesterday')">Kemarin</button>
-          <button class="tab-btn period-btn" data-period="week" onclick="setCsPeriod_('week')">Minggu Ini (7 Hari)</button>
         </div>
         <div class="filter-row" style="margin-bottom:14px;">
           <div class="field"><label>Dari tanggal</label><input type="date" id="csStart"></div>
@@ -1067,7 +1061,7 @@
     setInterval(function () {
       const activeTab = document.querySelector('.tab-btn.active').dataset.tab;
       if (activeTab === 'overview') refreshOverview();
-    }, 5000);
+    }, 10000);
   }
 
   function switchTab(tab) {
@@ -1093,7 +1087,7 @@
 
     document.getElementById('activityTable').innerHTML = d.activity.map(function (a) {
       const last = a.lastScan ? new Date(a.lastScan).toLocaleTimeString('id-ID') : '-';
-      return '<tr><td>' + escapeHtml_(a.name) + '</td><td><span class="pill ' + a.status + '">' + a.status + '</span></td><td>' + last + '</td><td>' + a.total + '</td></tr>';
+      return '<tr><td>' + escapeHtml_(a.name) + '</td><td>' + escapeHtml_(roleLabel_(a.role)) + '</td><td><span class="pill ' + a.status + '">' + a.status + '</span></td><td>' + last + '</td><td>' + a.total + '</td></tr>';
     }).join('');
 
     if (d.cs) {
