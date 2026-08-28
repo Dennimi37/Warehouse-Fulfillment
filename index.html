@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-<title>Warehouse Package Checker — Scan</title>
+<title>Warehouse Activity and Report — Scan</title>
 <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
 <style>
   :root {
@@ -108,7 +108,7 @@
 
   <div id="loginView">
     <div class="login-card">
-      <h1>WAREHOUSE PACKAGE CHECKER</h1>
+      <h1>WAREHOUSE ACTIVITY AND REPORT</h1>
       <p class="subtitle">Login dengan Nama &amp; PIN</p>
       <input id="loginNama" placeholder="Nama (contoh: Bimo)" autocomplete="off" autocapitalize="words">
       <input id="loginPin" placeholder="PIN" type="password" inputmode="numeric" autocomplete="off">
@@ -121,7 +121,7 @@
   <div id="scannerView" class="hidden">
     <div class="topbar">
       <div>
-        <div class="title">WAREHOUSE PACKAGE CHECKER</div>
+        <div class="title">WAREHOUSE ACTIVITY AND REPORT</div>
         <div class="who" id="scannerWho"></div>
       </div>
       <div class="actions">
@@ -181,8 +181,10 @@
       <h3 style="margin-top:0;">📅 Laporan Harian</h3>
       <p style="color:var(--muted); font-size:12px; margin-top:-8px;">1 laporan per tanggal — isi ulang di tanggal yang sama akan menimpa laporan sebelumnya.</p>
       <div class="field"><label>Tanggal</label><input type="date" id="drPicDate"></div>
-      <div class="field"><label>Scan</label><input type="number" id="drPicScan" inputmode="numeric" placeholder="Contoh: 300"></div>
-      <div class="field"><label>Stock</label><input type="number" id="drPicStock" inputmode="numeric" placeholder="Contoh: 120"></div>
+      <div class="field"><label>Packing</label><input type="number" id="drPicPacking" inputmode="numeric" placeholder="Contoh: 100"></div>
+      <div class="field"><label>Inbound</label><input type="number" id="drPicInbound" inputmode="numeric" placeholder="Contoh: 50"></div>
+      <div class="field"><label>Preparation</label><input type="number" id="drPicPreparation" inputmode="numeric" placeholder="Contoh: 30"></div>
+      <div class="field"><label>Lainnya (opsional)</label><input type="number" id="drPicLainnya" inputmode="numeric" placeholder="Contoh: 10"></div>
       <div class="field"><label>Jam Lembur (opsional)</label><input type="number" id="drPicLembur" inputmode="decimal" step="0.5" placeholder="Contoh: 2"></div>
       <div class="modal-actions">
         <button style="background:var(--panel-2); color:var(--text); border:1px solid var(--border);" onclick="closeDailyReportPic_()">Tutup</button>
@@ -190,14 +192,14 @@
       </div>
       <p id="drPicMsg" style="font-size:13px; min-height:18px;"></p>
       <h4 style="margin-bottom:8px;">Riwayat Laporan Saya</h4>
-      <table><thead><tr><th>Tanggal</th><th>Scan</th><th>Stock</th><th>Lembur</th></tr></thead><tbody id="drPicHistoryTable"></tbody></table>
+      <table><thead><tr><th>Tanggal</th><th>Packing</th><th>Inbound</th><th>Prep.</th><th>Lainnya</th><th>Lembur</th></tr></thead><tbody id="drPicHistoryTable"></tbody></table>
     </div>
   </div>
 
   <div id="csView" class="hidden">
     <div class="topbar">
       <div>
-        <div class="title">WAREHOUSE PACKAGE CHECKER</div>
+        <div class="title">WAREHOUSE ACTIVITY AND REPORT</div>
         <div class="who" id="csWho"></div>
       </div>
       <div class="actions">
@@ -257,6 +259,7 @@
       <div class="field"><label>Tanggal</label><input type="date" id="drCsDate"></div>
       <div class="field"><label>Sesi</label><input type="number" id="drCsSession" inputmode="numeric" placeholder="Contoh: 3"></div>
       <div class="field"><label>Qty Cetak</label><input type="number" id="drCsQty" inputmode="numeric" placeholder="Contoh: 150"></div>
+      <div class="field"><label>Lainnya (opsional)</label><input type="number" id="drCsLainnya" inputmode="numeric" placeholder="Contoh: 10"></div>
       <div class="field"><label>Jam Lembur (opsional)</label><input type="number" id="drCsLembur" inputmode="decimal" step="0.5" placeholder="Contoh: 2"></div>
       <div class="modal-actions">
         <button style="background:var(--panel-2); color:var(--text); border:1px solid var(--border);" onclick="closeDailyReportCs_()">Tutup</button>
@@ -264,14 +267,14 @@
       </div>
       <p id="drCsMsg" style="font-size:13px; min-height:18px;"></p>
       <h4 style="margin-bottom:8px;">Riwayat Laporan Saya</h4>
-      <table><thead><tr><th>Tanggal</th><th>Sesi</th><th>Qty</th><th>Lembur</th></tr></thead><tbody id="drCsHistoryTable"></tbody></table>
+      <table><thead><tr><th>Tanggal</th><th>Sesi</th><th>Qty</th><th>Lainnya</th><th>Lembur</th></tr></thead><tbody id="drCsHistoryTable"></tbody></table>
     </div>
   </div>
 
   <div id="dashboardView" class="hidden">
     <div class="topbar">
       <div>
-        <div class="title">WAREHOUSE PACKAGE CHECKER</div>
+        <div class="title">WAREHOUSE ACTIVITY AND REPORT</div>
         <div class="who" id="dashWho"></div>
       </div>
       <div class="actions">
@@ -285,7 +288,7 @@
         <button class="tab-btn active" data-tab="overview" onclick="switchTab('overview')">Overview</button>
         <button class="tab-btn" data-tab="search" onclick="switchTab('search')">Search Resi</button>
         <button class="tab-btn" data-tab="history" onclick="switchTab('history')">Histori &amp; Filter</button>
-        <button class="tab-btn" data-tab="pic" onclick="switchTab('pic')">Kelola PIC</button>
+        <button class="tab-btn" data-tab="pic" onclick="switchTab('pic')">Kelola Staff</button>
         <button class="tab-btn" data-tab="cs" onclick="switchTab('cs')">CS Activity</button>
         <button class="tab-btn" data-tab="daily" onclick="switchTab('daily')">Laporan Harian</button>
         <button class="tab-btn" data-tab="audit" onclick="switchTab('audit')">Audit Log</button>
@@ -305,12 +308,12 @@
         </div>
         <div class="overview-grid" id="ovGrid"></div>
         <div class="panel-box">
-          <h3 style="margin-top:0;" id="perPicTitle">Klasemen PIC — Hari Ini</h3>
-          <table><thead><tr><th>#</th><th>PIC</th><th>Valid</th><th>Duplicate</th><th>Error</th><th>Total</th></tr></thead><tbody id="perPicTable"></tbody></table>
+          <h3 style="margin-top:0;" id="perPicTitle">Klasemen Staff — Hari Ini</h3>
+          <table><thead><tr><th>#</th><th>Staff</th><th>Valid</th><th>Duplicate</th><th>Error</th><th>Total</th></tr></thead><tbody id="perPicTable"></tbody></table>
         </div>
         <div class="panel-box">
-          <h3 style="margin-top:0;">Aktivitas PIC Real-time</h3>
-          <table><thead><tr><th>PIC</th><th>Status</th><th>Last Scan</th><th>Total</th></tr></thead><tbody id="activityTable"></tbody></table>
+          <h3 style="margin-top:0;">Aktivitas Staff Real-time</h3>
+          <table><thead><tr><th>Staff</th><th>Status</th><th>Last Scan</th><th>Total</th></tr></thead><tbody id="activityTable"></tbody></table>
         </div>
         <div class="panel-box">
           <h3 style="margin-top:0;" id="ovCsTitle">CS Activity — Hari Ini</h3>
@@ -340,7 +343,7 @@
             </div>
             <div class="field"><label>Dari tanggal</label><input type="date" id="fStart"></div>
             <div class="field"><label>Sampai tanggal</label><input type="date" id="fEnd"></div>
-            <div class="field"><label>PIC</label><select id="fPic"><option value="">Semua</option></select></div>
+            <div class="field"><label>Staff</label><select id="fPic"><option value="">Semua</option></select></div>
             <div class="field"><label>Status</label>
               <select id="fStatus"><option value="">Semua</option><option value="VALID">VALID</option><option value="DUPLICATE">DUPLICATE</option><option value="ERROR">ERROR</option></select>
             </div>
@@ -348,7 +351,7 @@
             <button class="btn-primary" onclick="doFilterHistory()">Terapkan</button>
             <button class="btn-secondary" onclick="doExport()">⬇ Export CSV</button>
           </div>
-          <table><thead><tr><th>Resi</th><th>PIC</th><th>Tanggal</th><th>Jam</th><th>Status</th><th>Keterangan</th></tr></thead><tbody id="historyTable"></tbody></table>
+          <table><thead><tr><th>Resi</th><th>Staff</th><th>Tanggal</th><th>Jam</th><th>Status</th><th>Keterangan</th></tr></thead><tbody id="historyTable"></tbody></table>
         </div>
       </div>
 
@@ -356,7 +359,7 @@
         <div class="panel-box">
           <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; flex-wrap:wrap; gap:10px;">
             <h3 style="margin:0;">Daftar Akun &amp; Produktivitas</h3>
-            <button class="btn-primary" onclick="openAddPicModal()">+ Tambah PIC</button>
+            <button class="btn-primary" onclick="openAddPicModal()">+ Tambah Staff</button>
           </div>
           <div class="filter-row" style="margin-bottom:12px;">
             <button class="tab-btn period-btn" data-period="1h" onclick="setPicStatsPeriod_('1h')">1 Jam Terakhir</button>
@@ -364,7 +367,7 @@
             <button class="tab-btn period-btn active" data-period="today" onclick="setPicStatsPeriod_('today')">Hari Ini</button>
             <button class="tab-btn period-btn" data-period="week" onclick="setPicStatsPeriod_('week')">Minggu Ini (7 Hari)</button>
           </div>
-          <table><thead><tr><th>PIC ID</th><th>Nama</th><th>Role</th><th>Status</th><th>Valid</th><th>Duplicate</th><th>Error</th><th></th></tr></thead><tbody id="picTable"></tbody></table>
+          <table><thead><tr><th>Staff ID</th><th>Nama</th><th>Role</th><th>Status</th><th>Valid</th><th>Duplicate</th><th>Error</th><th></th></tr></thead><tbody id="picTable"></tbody></table>
         </div>
       </div>
 
@@ -389,13 +392,18 @@
 
       <div class="tab-panel" id="tab-daily">
         <div class="panel-box">
-          <div class="filter-row" style="margin-bottom:14px;">
+          <div class="filter-row" style="margin-bottom:10px;">
+            <button class="tab-btn period-btn" data-mode="today" onclick="setDailyMode_('today')">Hari Ini</button>
+            <button class="tab-btn period-btn" data-mode="yesterday" onclick="setDailyMode_('yesterday')">Kemarin</button>
+            <button class="tab-btn period-btn active" data-mode="period" onclick="setDailyMode_('period')">Periode</button>
+          </div>
+          <div class="filter-row" id="dailyPeriodFields" style="margin-bottom:14px;">
             <div class="field"><label>Dari tanggal</label><input type="date" id="dailyStart"></div>
             <div class="field"><label>Sampai tanggal</label><input type="date" id="dailyEnd"></div>
             <button class="btn-primary" onclick="loadDailyReportsList_()">Terapkan</button>
             <button class="btn-secondary" onclick="clearDailyReportsFilter_()">Tampilkan Semua</button>
           </div>
-          <table><thead><tr><th>Tanggal</th><th>Nama</th><th>Role</th><th>Scan</th><th>Stock</th><th>Session</th><th>Qty Cetak</th><th>Lembur</th></tr></thead><tbody id="dailyReportsTable"></tbody></table>
+          <table><thead><tr><th>Tanggal</th><th>Nama</th><th>Role</th><th>Packing</th><th>Inbound</th><th>Preparation</th><th>Session</th><th>Qty Cetak</th><th>Lainnya</th><th>Lembur</th></tr></thead><tbody id="dailyReportsTable"></tbody></table>
         </div>
       </div>
 
@@ -409,11 +417,11 @@
 
   <div class="modal-backdrop hidden" id="picModalBackdrop">
     <div class="modal">
-      <h3 id="picModalTitle">Tambah PIC</h3>
-      <div class="field"><label>PIC ID</label><input id="mPicId"></div>
+      <h3 id="picModalTitle">Tambah Staff</h3>
+      <div class="field"><label>Staff ID</label><input id="mPicId"></div>
       <div class="field"><label>Nama</label><input id="mPicName"></div>
       <div class="field"><label>PIN</label><input id="mPicPin" inputmode="numeric"></div>
-      <div class="field"><label>Role</label><select id="mPicRole"><option value="PIC">PIC</option><option value="CS">CS</option><option value="Supervisor">Supervisor</option></select></div>
+      <div class="field"><label>Role</label><select id="mPicRole"><option value="PIC">Staff</option><option value="CS">CS</option><option value="Supervisor">Supervisor</option></select></div>
       <div class="field"><label>Status</label><select id="mPicStatus"><option value="Aktif">Aktif</option><option value="Nonaktif">Nonaktif</option></select></div>
       <div class="modal-actions">
         <button class="btn-secondary" onclick="closePicModal()">Batal</button>
@@ -514,7 +522,7 @@
     document.getElementById('loginView').classList.add('hidden');
     if (CURRENT_USER.role === 'PIC') {
       document.getElementById('scannerView').classList.remove('hidden');
-      document.getElementById('scannerWho').textContent = 'PIC: ' + CURRENT_USER.name;
+      document.getElementById('scannerWho').textContent = 'Staff: ' + CURRENT_USER.name;
       setupScanInput_();
       loadKnownReceipts_();
       loadMySummary_();
@@ -818,11 +826,13 @@
 
   function submitDailyReportPic_() {
     const dateVal = document.getElementById('drPicDate').value;
-    const scan = document.getElementById('drPicScan').value;
-    const stock = document.getElementById('drPicStock').value;
+    const packing = document.getElementById('drPicPacking').value;
+    const inbound = document.getElementById('drPicInbound').value;
+    const preparation = document.getElementById('drPicPreparation').value;
+    const lainnya = document.getElementById('drPicLainnya').value;
     const lembur = document.getElementById('drPicLembur').value;
-    if (!dateVal || scan === '' || stock === '') {
-      document.getElementById('drPicMsg').textContent = 'Tanggal, Scan, dan Stock wajib diisi.';
+    if (!dateVal || packing === '' || inbound === '' || preparation === '') {
+      document.getElementById('drPicMsg').textContent = 'Tanggal, Packing, Inbound, dan Preparation wajib diisi.';
       document.getElementById('drPicMsg').style.color = 'var(--red)';
       return;
     }
@@ -830,7 +840,7 @@
     document.getElementById('drPicMsg').textContent = 'Menyimpan...';
     document.getElementById('drPicMsg').style.color = 'var(--muted)';
 
-    callApi('submitDailyReport', { picId: CURRENT_USER.picId, picName: CURRENT_USER.name, role: CURRENT_USER.role, date: dateStr, scan: scan, stock: stock, session: '', qtyCetak: '', lembur: lembur })
+    callApi('submitDailyReport', { picId: CURRENT_USER.picId, picName: CURRENT_USER.name, role: CURRENT_USER.role, date: dateStr, packing: packing, inbound: inbound, preparation: preparation, session: '', qtyCetak: '', lainnya: lainnya, lembur: lembur })
       .then(function (res) {
         if (!res || !res.success) {
           document.getElementById('drPicMsg').textContent = 'Gagal: ' + (res && res.message ? res.message : 'tidak dikenal server');
@@ -848,13 +858,13 @@
   }
 
   function loadMyDailyReportsPic_() {
-    document.getElementById('drPicHistoryTable').innerHTML = '<tr><td colspan="4" style="color:var(--muted)">Memuat...</td></tr>';
+    document.getElementById('drPicHistoryTable').innerHTML = '<tr><td colspan="6" style="color:var(--muted)">Memuat...</td></tr>';
     callApi('getMyDailyReports', { picId: CURRENT_USER.picId, limit: 30 }).then(function (rows) {
       document.getElementById('drPicHistoryTable').innerHTML = rows.map(function (r) {
-        return '<tr><td>' + r.Date + '</td><td>' + r.Scan + '</td><td>' + r.Stock + '</td><td>' + (r.Lembur || '-') + '</td></tr>';
-      }).join('') || '<tr><td colspan="4" style="color:var(--muted)">Belum ada laporan</td></tr>';
+        return '<tr><td>' + r.Date + '</td><td>' + r.Packing + '</td><td>' + r.Inbound + '</td><td>' + r.Preparation + '</td><td>' + (r.Lainnya || '-') + '</td><td>' + (r.Lembur || '-') + '</td></tr>';
+      }).join('') || '<tr><td colspan="6" style="color:var(--muted)">Belum ada laporan</td></tr>';
     }).catch(function (e) {
-      document.getElementById('drPicHistoryTable').innerHTML = '<tr><td colspan="4" style="color:var(--red)">Gagal memuat: ' + e + '</td></tr>';
+      document.getElementById('drPicHistoryTable').innerHTML = '<tr><td colspan="6" style="color:var(--red)">Gagal memuat: ' + e + '</td></tr>';
     });
   }
 
@@ -959,6 +969,7 @@
     const dateVal = document.getElementById('drCsDate').value;
     const session = document.getElementById('drCsSession').value;
     const qty = document.getElementById('drCsQty').value;
+    const lainnya = document.getElementById('drCsLainnya').value;
     const lembur = document.getElementById('drCsLembur').value;
     if (!dateVal || session === '' || qty === '') {
       document.getElementById('drCsMsg').textContent = 'Tanggal, Sesi, dan Qty Cetak wajib diisi.';
@@ -969,7 +980,7 @@
     document.getElementById('drCsMsg').textContent = 'Menyimpan...';
     document.getElementById('drCsMsg').style.color = 'var(--muted)';
 
-    callApi('submitDailyReport', { picId: CURRENT_USER.picId, picName: CURRENT_USER.name, role: CURRENT_USER.role, date: dateStr, stock: '', session: session, qtyCetak: qty, lembur: lembur })
+    callApi('submitDailyReport', { picId: CURRENT_USER.picId, picName: CURRENT_USER.name, role: CURRENT_USER.role, date: dateStr, packing: '', inbound: '', preparation: '', session: session, qtyCetak: qty, lainnya: lainnya, lembur: lembur })
       .then(function (res) {
         if (!res || !res.success) {
           document.getElementById('drCsMsg').textContent = 'Gagal: ' + (res && res.message ? res.message : 'tidak dikenal server');
@@ -987,14 +998,18 @@
   }
 
   function loadMyDailyReportsCs_() {
-    document.getElementById('drCsHistoryTable').innerHTML = '<tr><td colspan="4" style="color:var(--muted)">Memuat...</td></tr>';
+    document.getElementById('drCsHistoryTable').innerHTML = '<tr><td colspan="5" style="color:var(--muted)">Memuat...</td></tr>';
     callApi('getMyDailyReports', { picId: CURRENT_USER.picId, limit: 30 }).then(function (rows) {
       document.getElementById('drCsHistoryTable').innerHTML = rows.map(function (r) {
-        return '<tr><td>' + r.Date + '</td><td>' + r.Session + '</td><td>' + r.QtyCetak + '</td><td>' + (r.Lembur || '-') + '</td></tr>';
-      }).join('') || '<tr><td colspan="4" style="color:var(--muted)">Belum ada laporan</td></tr>';
+        return '<tr><td>' + r.Date + '</td><td>' + r.Session + '</td><td>' + r.QtyCetak + '</td><td>' + (r.Lainnya || '-') + '</td><td>' + (r.Lembur || '-') + '</td></tr>';
+      }).join('') || '<tr><td colspan="5" style="color:var(--muted)">Belum ada laporan</td></tr>';
     }).catch(function (e) {
-      document.getElementById('drCsHistoryTable').innerHTML = '<tr><td colspan="4" style="color:var(--red)">Gagal memuat: ' + e + '</td></tr>';
+      document.getElementById('drCsHistoryTable').innerHTML = '<tr><td colspan="5" style="color:var(--red)">Gagal memuat: ' + e + '</td></tr>';
     });
+  }
+
+  function roleLabel_(role) {
+    return role === 'PIC' ? 'Staff' : role;
   }
 
   function escapeHtml_(v) {
@@ -1061,10 +1076,10 @@
 
   function renderOverview_(d) {
     const label = d.period === 'custom' ? 'Custom' : PERIOD_LABELS_[d.period];
-    document.getElementById('perPicTitle').textContent = 'Klasemen PIC — ' + label;
+    document.getElementById('perPicTitle').textContent = 'Klasemen Staff — ' + label;
     document.getElementById('ovGrid').innerHTML = [
       ['Total Scan (' + label + ')', d.totalScanToday], ['Valid', d.totalValid], ['Duplicate', d.totalDuplicate],
-      ['Error', d.totalError], ['PIC Aktif', d.activePicCount]
+      ['Error', d.totalError], ['Staff Aktif', d.activePicCount]
     ].map(function (x) { return '<div class="ov-card"><div class="n">' + x[1] + '</div><div class="l">' + x[0] + '</div></div>'; }).join('');
 
     document.getElementById('perPicTable').innerHTML = d.perPic.map(function (p) {
@@ -1153,7 +1168,7 @@
     callApi('listPicsWithStats', { period: picStatsPeriod_ }).then(function (pics) {
       picListCache = pics;
       document.getElementById('picTable').innerHTML = pics.map(function (p, i) {
-        return '<tr><td>' + escapeHtml_(p.PICID) + '</td><td>' + escapeHtml_(p.Nama) + '</td><td>' + escapeHtml_(p.Role) + '</td>' +
+        return '<tr><td>' + escapeHtml_(p.PICID) + '</td><td>' + escapeHtml_(p.Nama) + '</td><td>' + escapeHtml_(roleLabel_(p.Role)) + '</td>' +
           '<td><span class="pill ' + (p.StatusAktif === 'Aktif' ? 'ACTIVE' : 'NONAKTIF') + '">' + escapeHtml_(p.StatusAktif) + '</span></td>' +
           '<td>' + p.valid + '</td><td>' + p.duplicate + '</td><td>' + p.error + '</td>' +
           '<td style="display:flex; gap:6px;"><button class="btn-secondary" onclick="openEditPicModalByIndex(' + i + ')">Edit</button>' +
@@ -1182,7 +1197,7 @@
 
   function openAddPicModal() {
     picModalMode = 'add';
-    document.getElementById('picModalTitle').textContent = 'Tambah PIC';
+    document.getElementById('picModalTitle').textContent = 'Tambah Staff';
     document.getElementById('mPicId').value = ''; document.getElementById('mPicId').disabled = false;
     document.getElementById('mPicName').value = ''; document.getElementById('mPicPin').value = '';
     document.getElementById('mPicRole').value = 'PIC'; document.getElementById('mPicStatus').value = 'Aktif';
@@ -1191,7 +1206,7 @@
 
   function openEditPicModal(p) {
     picModalMode = 'edit';
-    document.getElementById('picModalTitle').textContent = 'Edit PIC — ' + p.PICID;
+    document.getElementById('picModalTitle').textContent = 'Edit Staff — ' + p.PICID;
     document.getElementById('mPicId').value = p.PICID; document.getElementById('mPicId').disabled = true;
     document.getElementById('mPicName').value = p.Nama; document.getElementById('mPicPin').value = '';
     document.getElementById('mPicPin').placeholder = 'Kosongkan jika tidak reset PIN';
@@ -1268,19 +1283,48 @@
     return p[2] + '-' + p[1] + '-' + p[0];
   }
 
+  let dailyMode_ = 'period';
+
+  function todayShiftedSheetDate_(offsetDays) {
+    const d = new Date();
+    d.setDate(d.getDate() + offsetDays);
+    const dd = String(d.getDate()).padStart(2, '0');
+    const mm = String(d.getMonth() + 1).padStart(2, '0');
+    return dd + '-' + mm + '-' + d.getFullYear();
+  }
+
+  function setDailyMode_(mode) {
+    dailyMode_ = mode;
+    document.querySelectorAll('#tab-daily .period-btn').forEach(function (b) { b.classList.toggle('active', b.dataset.mode === mode); });
+    document.getElementById('dailyPeriodFields').style.display = mode === 'period' ? 'flex' : 'none';
+    if (mode === 'today') {
+      const d = todayShiftedSheetDate_(0);
+      loadDailyReportsRange_(d, d);
+    } else if (mode === 'yesterday') {
+      const d = todayShiftedSheetDate_(-1);
+      loadDailyReportsRange_(d, d);
+    } else {
+      loadDailyReportsList_();
+    }
+  }
+
+  function loadDailyReportsRange_(startDate, endDate) {
+    document.getElementById('dailyReportsTable').innerHTML = '<tr><td colspan="10" style="color:var(--muted)">Memuat...</td></tr>';
+    callApi('getDailyReportsList', { startDate: startDate, endDate: endDate }).then(function (rows) {
+      document.getElementById('dailyReportsTable').innerHTML = rows.map(function (r) {
+        return '<tr><td>' + r.Date + '</td><td>' + escapeHtml_(r.PICName) + '</td><td>' + escapeHtml_(roleLabel_(r.Role)) + '</td>' +
+          '<td>' + (r.Packing || '') + '</td><td>' + (r.Inbound || '') + '</td><td>' + (r.Preparation || '') + '</td>' +
+          '<td>' + (r.Session || '') + '</td><td>' + (r.QtyCetak || '') + '</td><td>' + (r.Lainnya || '') + '</td><td>' + (r.Lembur || '') + '</td></tr>';
+      }).join('') || '<tr><td colspan="10" style="color:var(--muted)">Belum ada laporan</td></tr>';
+    }).catch(function (err) {
+      document.getElementById('dailyReportsTable').innerHTML = '<tr><td colspan="10" style="color:var(--red)">Gagal memuat: ' + err + '</td></tr>';
+    });
+  }
+
   function loadDailyReportsList_() {
     const s = document.getElementById('dailyStart').value;
     const e = document.getElementById('dailyEnd').value;
-    const startDate = toSheetDateOv2_(s);
-    const endDate = toSheetDateOv2_(e);
-    document.getElementById('dailyReportsTable').innerHTML = '<tr><td colspan="8" style="color:var(--muted)">Memuat...</td></tr>';
-    callApi('getDailyReportsList', { startDate: startDate, endDate: endDate }).then(function (rows) {
-      document.getElementById('dailyReportsTable').innerHTML = rows.map(function (r) {
-        return '<tr><td>' + r.Date + '</td><td>' + escapeHtml_(r.PICName) + '</td><td>' + escapeHtml_(r.Role) + '</td><td>' + (r.Scan || '') + '</td><td>' + (r.Stock || '') + '</td><td>' + (r.Session || '') + '</td><td>' + (r.QtyCetak || '') + '</td><td>' + (r.Lembur || '') + '</td></tr>';
-      }).join('') || '<tr><td colspan="8" style="color:var(--muted)">Belum ada laporan</td></tr>';
-    }).catch(function (err) {
-      document.getElementById('dailyReportsTable').innerHTML = '<tr><td colspan="8" style="color:var(--red)">Gagal memuat: ' + err + '</td></tr>';
-    });
+    loadDailyReportsRange_(toSheetDateOv2_(s), toSheetDateOv2_(e));
   }
 
   function clearDailyReportsFilter_() {
