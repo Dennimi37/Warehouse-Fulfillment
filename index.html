@@ -296,35 +296,47 @@
   // Content-Type text/plain sengaja dipakai supaya browser TIDAK mengirim
   // preflight OPTIONS (yang tidak didukung Apps Script) — body tetap JSON.
   // ================================================================
+  // Komunikasi ke Apps Script pakai iframe tersembunyi + postMessage.
+  // Ini lebih reliable dibanding fetch()/JSONP untuk pemanggilan lintas-domain ke Apps Script.
+  let pmCounter_ = 0;
+  const pmPending_ = {};
+  let pmListenerReady_ = false;
+
+  function ensurePmListener_() {
+    if (pmListenerReady_) return;
+    pmListenerReady_ = true;
+    window.addEventListener('message', function (event) {
+      const d = event.data;
+      if (!d || !d.__wpc) return;
+      const entry = pmPending_[d.requestId];
+      if (entry) { delete pmPending_[d.requestId]; entry(d.data); }
+    });
+  }
+
   function callApi(action, payload) {
+    ensurePmListener_();
     return new Promise(function (resolve, reject) {
-      const cbName = 'wpc_cb_' + Date.now() + '_' + Math.random().toString(36).slice(2, 8);
-      const url = APPS_SCRIPT_URL + '?api=1&action=' + encodeURIComponent(action) +
-        '&payload=' + encodeURIComponent(JSON.stringify(payload || {})) +
-        '&callback=' + cbName;
+      const requestId = 'r' + (pmCounter_++) + '_' + Date.now();
+      const url = APPS_SCRIPT_URL + '?pm=1&requestId=' + encodeURIComponent(requestId) +
+        '&action=' + encodeURIComponent(action) + '&payload=' + encodeURIComponent(JSON.stringify(payload || {}));
 
-      let finished = false;
-      const script = document.createElement('script');
+      const iframe = document.createElement('iframe');
+      iframe.style.display = 'none';
 
-      function cleanup() {
-        delete window[cbName];
-        if (script.parentNode) script.parentNode.removeChild(script);
-      }
+      function cleanup() { if (iframe.parentNode) iframe.parentNode.removeChild(iframe); }
 
-      window[cbName] = function (data) {
-        finished = true;
-        cleanup();
-        resolve(data);
+      pmPending_[requestId] = function (data) { cleanup(); resolve(data); };
+
+      iframe.onerror = function () {
+        if (pmPending_[requestId]) { delete pmPending_[requestId]; cleanup(); reject(new Error('Gagal memuat dari server (cek APPS_SCRIPT_URL / koneksi)')); }
       };
-      script.onerror = function () {
-        if (!finished) { cleanup(); reject(new Error('Gagal memuat dari server (cek APPS_SCRIPT_URL / koneksi)')); }
-      };
+
       setTimeout(function () {
-        if (!finished) { cleanup(); reject(new Error('Timeout menghubungi server')); }
+        if (pmPending_[requestId]) { delete pmPending_[requestId]; cleanup(); reject(new Error('Timeout menghubungi server')); }
       }, 15000);
 
-      script.src = url;
-      document.body.appendChild(script);
+      iframe.src = url;
+      document.body.appendChild(iframe);
     });
   }
 
