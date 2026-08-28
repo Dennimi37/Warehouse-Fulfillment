@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>Warehouse Package Checker — Scan</title>
+<script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+<style>
+  :root {
+    --bg: #0f172a; --panel: #1e293b; --panel-2: #16213a; --border: #2d3b55;
+    --text: #e5e9f0; --muted: #93a2c0; --accent: #3b82f6;
+    --green: #22c55e; --yellow: #eab308; --red: #ef4444; --radius: 12px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin:0; padding:0; background:var(--bg); color:var(--text); height:100%; -webkit-tap-highlight-color:transparent; }
+  .hidden { display:none !important; }
+  button { font-family:inherit; cursor:pointer; border:none; border-radius:8px; padding:10px 16px; font-weight:600; font-size:14px; }
+  input { font-family:inherit; background:var(--panel-2); border:1px solid var(--border); color:var(--text); border-radius:8px; padding:10px 12px; font-size:15px; width:100%; }
+  input:focus { outline:2px solid var(--accent); }
+
+  #loginView { height:100vh; display:flex; align-items:center; justify-content:center; padding:20px; }
+  .login-card { background:var(--panel); border:1px solid var(--border); border-radius:var(--radius); padding:32px; width:100%; max-width:360px; text-align:center; }
+  .login-card h1 { font-size:16px; margin:0 0 4px; letter-spacing:0.5px; }
+  .login-card p.subtitle { color:var(--muted); font-size:13px; margin:0 0 24px; }
+  .login-card input { margin-bottom:12px; text-align:center; font-size:18px; letter-spacing:2px; }
+  .login-card button { width:100%; background:var(--accent); color:white; padding:12px; font-size:15px; }
+  .login-error { color:var(--red); font-size:13px; margin-top:10px; min-height:16px; }
+  .login-note { color:var(--muted); font-size:11px; margin-top:16px; line-height:1.5; }
+
+  .topbar { display:flex; align-items:center; justify-content:space-between; padding:10px 16px; background:var(--panel); border-bottom:1px solid var(--border); position:sticky; top:0; z-index:10; }
+  .topbar .title { font-weight:700; font-size:14px; }
+  .topbar .who { font-size:12px; color:var(--muted); }
+  .topbar .actions { display:flex; gap:8px; align-items:center; }
+  .icon-btn { background:var(--panel-2); color:var(--text); border:1px solid var(--border); padding:8px 10px; font-size:13px; }
+  .badge-offline { background:var(--red); color:white; padding:3px 8px; border-radius:20px; font-size:11px; font-weight:700; }
+  .badge-syncing { background:var(--yellow); color:#1a1a1a; padding:3px 8px; border-radius:20px; font-size:11px; font-weight:700; }
+  .badge-online { background:var(--green); color:#1a1a1a; padding:3px 8px; border-radius:20px; font-size:11px; font-weight:700; }
+
+  #scannerView { max-width:480px; margin:0 auto; padding:16px; }
+  .scan-box { background:var(--panel); border:1px solid var(--border); border-radius:var(--radius); padding:20px; margin-bottom:16px; text-align:center; }
+  .scan-box label { display:block; font-size:12px; color:var(--muted); margin-bottom:8px; letter-spacing:1px; }
+  #scanInput { font-size:22px; text-align:center; padding:16px; letter-spacing:1px; }
+  .status-panel { border-radius:var(--radius); padding:20px; text-align:center; margin-bottom:16px; background:var(--panel); border:1px solid var(--border); }
+  .status-panel.valid { background:rgba(34,197,94,0.15); border-color:var(--green); }
+  .status-panel.duplicate { background:rgba(234,179,8,0.15); border-color:var(--yellow); }
+  .status-panel.invalid, .status-panel.error { background:rgba(239,68,68,0.15); border-color:var(--red); }
+  .status-panel .icon { font-size:40px; line-height:1; margin-bottom:8px; }
+  .status-panel .msg { font-weight:700; font-size:16px; }
+  .status-panel .last-receipt { font-size:13px; color:var(--muted); margin-top:6px; word-break:break-all; }
+
+  .stats-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; }
+  .stat-card { background:var(--panel); border:1px solid var(--border); border-radius:10px; padding:12px 6px; text-align:center; }
+  .stat-card .n { font-size:20px; font-weight:800; }
+  .stat-card .l { font-size:10px; color:var(--muted); margin-top:2px; }
+  .stat-card.valid .n { color:var(--green); }
+  .stat-card.duplicate .n { color:var(--yellow); }
+  .stat-card.error .n { color:var(--red); }
+  .queue-note { font-size:12px; color:var(--muted); text-align:center; margin-top:10px; }
+
+  .modal-backdrop { position:fixed; inset:0; background:rgba(0,0,0,0.6); display:flex; align-items:center; justify-content:center; z-index:50; padding:16px; }
+  .modal { background:var(--panel); border:1px solid var(--border); border-radius:var(--radius); padding:20px; width:100%; max-width:420px; }
+  .modal h3 { margin-top:0; }
+</style>
+</head>
+<body>
+
+  <!-- ============ GANTI URL INI setelah Deploy Apps Script ============ -->
+  <script>
+    const APPS_SCRIPT_URL = 'PASTE_URL_WEB_APP_APPS_SCRIPT_DISINI';
+  </script>
+  <!-- ==================================================================== -->
+
+  <div id="loginView">
+    <div class="login-card">
+      <h1>WAREHOUSE PACKAGE CHECKER</h1>
+      <p class="subtitle">Login dengan Nama &amp; PIN</p>
+      <input id="loginNama" placeholder="Nama (contoh: Bimo)" autocomplete="off" autocapitalize="words">
+      <input id="loginPin" placeholder="PIN" type="password" inputmode="numeric" autocomplete="off">
+      <button id="loginBtn" onclick="doLogin()">MASUK</button>
+      <div class="login-error" id="loginError"></div>
+      <div class="login-note">Halaman ini khusus PIC untuk scan pakai kamera HP.</div>
+    </div>
+  </div>
+
+  <div id="scannerView" class="hidden">
+    <div class="topbar">
+      <div>
+        <div class="title">WAREHOUSE PACKAGE CHECKER</div>
+        <div class="who" id="scannerWho"></div>
+      </div>
+      <div class="actions">
+        <span id="netBadge" class="badge-online">ONLINE</span>
+        <button class="icon-btn" onclick="toggleSound()" id="soundBtn">🔊</button>
+        <button class="icon-btn" onclick="doLogout()">Keluar</button>
+      </div>
+    </div>
+
+    <div class="scan-box">
+      <label>SCAN RESI</label>
+      <input id="scanInput" autocomplete="off" autofocus placeholder="Ketik manual / scan Bluetooth...">
+      <button id="cameraScanBtn" style="width:100%; margin-top:10px; background:var(--panel-2); color:var(--text); border:1px solid var(--border);" onclick="openCameraScan_()">📷 Scan Pakai Kamera HP</button>
+    </div>
+
+    <div class="status-panel" id="statusPanel">
+      <div class="icon" id="statusIcon">⚪</div>
+      <div class="msg" id="statusMsg">SIAP SCAN</div>
+      <div class="last-receipt" id="lastReceipt"></div>
+    </div>
+
+    <div class="stats-grid">
+      <div class="stat-card total"><div class="n" id="statTotal">0</div><div class="l">TOTAL</div></div>
+      <div class="stat-card valid"><div class="n" id="statValid">0</div><div class="l">VALID</div></div>
+      <div class="stat-card duplicate"><div class="n" id="statDup">0</div><div class="l">DUPLICATE</div></div>
+      <div class="stat-card error"><div class="n" id="statErr">0</div><div class="l">ERROR</div></div>
+    </div>
+
+    <div class="queue-note" id="queueNote"></div>
+  </div>
+
+  <div class="modal-backdrop hidden" id="cameraModalBackdrop">
+    <div class="modal">
+      <h3>📷 Arahkan ke Barcode</h3>
+      <div id="cameraReaderRegion" style="width:100%; border-radius:8px; overflow:hidden; background:#000;"></div>
+      <p style="font-size:12px; color:var(--muted); text-align:center; margin:10px 0 0;">
+        Kamera tetap terbuka — setelah 1 barcode terbaca, otomatis siap baca barcode berikutnya.
+      </p>
+      <div style="margin-top:10px;">
+        <button style="width:100%; background:var(--panel-2); color:var(--text); border:1px solid var(--border);" onclick="closeCameraScan_()">Tutup Kamera</button>
+      </div>
+    </div>
+  </div>
+
+<script>
+  // ================================================================
+  // STATE GLOBAL
+  // ================================================================
+  let CURRENT_USER = null;
+  let SESSION_ID = null;
+  let knownReceipts = new Set();
+  let pendingQueue = [];
+  let inFlight = false;
+  let counters = { valid: 0, duplicate: 0, error: 0 };
+  let soundOn = true;
+  let audioCtx = null;
+
+  const BATCH_INTERVAL_MS = 800;
+  const BATCH_MAX_SIZE = 25;
+  const OFFLINE_KEY = 'wpc_offline_queue_mobile';
+
+  // ================================================================
+  // KOMUNIKASI KE APPS SCRIPT (fetch, bukan google.script.run)
+  // Content-Type text/plain sengaja dipakai supaya browser TIDAK mengirim
+  // preflight OPTIONS (yang tidak didukung Apps Script) — body tetap JSON.
+  // ================================================================
+  function callApi(action, payload) {
+    return fetch(APPS_SCRIPT_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify(Object.assign({ action: action }, payload || {}))
+    }).then(function (res) { return res.json(); });
+  }
+
+  // ================================================================
+  // LOGIN
+  // ================================================================
+  function doLogin() {
+    const nama = document.getElementById('loginNama').value.trim();
+    const pin = document.getElementById('loginPin').value.trim();
+    const errEl = document.getElementById('loginError');
+    errEl.textContent = '';
+
+    if (APPS_SCRIPT_URL.indexOf('PASTE_URL') > -1) {
+      errEl.textContent = 'APPS_SCRIPT_URL belum diisi di dalam file HTML ini.';
+      return;
+    }
+    if (!nama || !pin) { errEl.textContent = 'Nama dan PIN wajib diisi.'; return; }
+
+    document.getElementById('loginBtn').textContent = 'MEMERIKSA...';
+    document.getElementById('loginBtn').disabled = true;
+
+    callApi('login', { nama: nama, pin: pin, deviceId: getDeviceId() })
+      .then(function (res) {
+        document.getElementById('loginBtn').textContent = 'MASUK';
+        document.getElementById('loginBtn').disabled = false;
+        if (!res.success) { errEl.textContent = res.message || 'Login gagal.'; return; }
+        CURRENT_USER = res.user;
+        SESSION_ID = res.sessionId;
+        localStorage.setItem('wpc_user_mobile', JSON.stringify(CURRENT_USER));
+        localStorage.setItem('wpc_session_mobile', SESSION_ID);
+        enterApp();
+      })
+      .catch(function (err) {
+        document.getElementById('loginBtn').textContent = 'MASUK';
+        document.getElementById('loginBtn').disabled = false;
+        errEl.textContent = 'Gagal terhubung ke server: ' + err;
+      });
+  }
+
+  function getDeviceId() {
+    let id = localStorage.getItem('wpc_device_id_mobile');
+    if (!id) { id = 'DEV-' + Math.random().toString(36).slice(2, 10); localStorage.setItem('wpc_device_id_mobile', id); }
+    return id;
+  }
+
+  function enterApp() {
+    document.getElementById('loginView').classList.add('hidden');
+    document.getElementById('scannerView').classList.remove('hidden');
+    document.getElementById('scannerWho').textContent = 'PIC: ' + CURRENT_USER.name;
+    setupScanInput_();
+    loadKnownReceipts_();
+    loadMySummary_();
+    restoreOfflineQueueToPending_();
+    setInterval(flushBatch_, BATCH_INTERVAL_MS);
+    setInterval(refreshNetBadge_, 3000);
+    window.addEventListener('online', refreshNetBadge_);
+    window.addEventListener('offline', refreshNetBadge_);
+    refreshNetBadge_();
+  }
+
+  function doLogout() {
+    callApi('logout', { picId: CURRENT_USER.picId, picName: CURRENT_USER.name, sessionId: SESSION_ID }).catch(function () {});
+    localStorage.removeItem('wpc_user_mobile');
+    localStorage.removeItem('wpc_session_mobile');
+    location.reload();
+  }
+
+  (function tryRestoreSession() {
+    const savedUser = localStorage.getItem('wpc_user_mobile');
+    const savedSession = localStorage.getItem('wpc_session_mobile');
+    if (savedUser && savedSession) {
+      CURRENT_USER = JSON.parse(savedUser);
+      SESSION_ID = savedSession;
+      enterApp();
+    }
+  })();
+
+  // ================================================================
+  // INPUT SCANNER (Bluetooth/USB HID atau ketik manual)
+  // ================================================================
+  function setupScanInput_() {
+    const input = document.getElementById('scanInput');
+    input.value = '';
+    input.focus();
+    input.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        const raw = input.value;
+        input.value = '';
+        handleScan_(raw);
+      }
+    });
+    document.addEventListener('click', function () { setTimeout(function () { input.focus(); }, 30); });
+  }
+
+  function handleScan_(raw) {
+    const receipt = String(raw || '').trim();
+
+    if (!receipt) {
+      renderStatus_('invalid', '🔴', 'RESI KOSONG / TIDAK VALID', '');
+      playSound_('invalid');
+      counters.error++; updateCounterUI_();
+      return;
+    }
+    if (knownReceipts.has(receipt)) {
+      renderStatus_('duplicate', '🟡', 'DUPLICATE — SUDAH PERNAH DISCAN', receipt);
+      playSound_('duplicate');
+      counters.duplicate++; updateCounterUI_();
+      queueForServer_({ clientId: cid_(), receipt: receipt, ts: Date.now() });
+      return;
+    }
+    knownReceipts.add(receipt);
+    renderStatus_('valid', '🟢', 'SCAN BERHASIL', receipt);
+    playSound_('valid');
+    counters.valid++; updateCounterUI_();
+    queueForServer_({ clientId: cid_(), receipt: receipt, ts: Date.now() });
+  }
+
+  function cid_() { return 'c' + Date.now() + Math.random().toString(36).slice(2, 7); }
+
+  function renderStatus_(cls, icon, msg, receipt) {
+    const panel = document.getElementById('statusPanel');
+    panel.className = 'status-panel ' + cls;
+    document.getElementById('statusIcon').textContent = icon;
+    document.getElementById('statusMsg').textContent = msg;
+    document.getElementById('lastReceipt').textContent = receipt ? (receipt + '  •  ' + new Date().toLocaleTimeString('id-ID')) : '';
+  }
+
+  function updateCounterUI_() {
+    document.getElementById('statValid').textContent = counters.valid;
+    document.getElementById('statDup').textContent = counters.duplicate;
+    document.getElementById('statErr').textContent = counters.error;
+    document.getElementById('statTotal').textContent = counters.valid + counters.duplicate + counters.error;
+  }
+
+  // ================================================================
+  // BATCHING + OFFLINE QUEUE (sama seperti versi Apps Script)
+  // ================================================================
+  function queueForServer_(item) {
+    pendingQueue.push(item);
+    saveOfflineQueueSnapshot_();
+    if (pendingQueue.length >= BATCH_MAX_SIZE) flushBatch_();
+  }
+
+  function flushBatch_() {
+    if (inFlight || pendingQueue.length === 0) return;
+    if (!navigator.onLine) { updateQueueNote_(); return; }
+
+    const batch = pendingQueue.splice(0, BATCH_MAX_SIZE);
+    inFlight = true;
+    updateQueueNote_();
+
+    callApi('batchSubmitScans', {
+      picId: CURRENT_USER.picId, picName: CURRENT_USER.name,
+      sessionId: SESSION_ID, deviceId: getDeviceId(), items: batch
+    }).then(function (results) {
+      inFlight = false;
+      applyServerCorrections_(results);
+      saveOfflineQueueSnapshot_();
+      updateQueueNote_();
+    }).catch(function () {
+      inFlight = false;
+      pendingQueue = batch.concat(pendingQueue);
+      saveOfflineQueueSnapshot_();
+      updateQueueNote_();
+    });
+  }
+
+  function applyServerCorrections_(results) {
+    (results || []).forEach(function (r) {
+      if (r.status === 'DUPLICATE') {
+        counters.valid = Math.max(0, counters.valid - 1); counters.duplicate++; updateCounterUI_();
+      } else if (r.status === 'ERROR') {
+        counters.error++; counters.valid = Math.max(0, counters.valid - 1); updateCounterUI_();
+      }
+    });
+  }
+
+  function saveOfflineQueueSnapshot_() {
+    try { localStorage.setItem(OFFLINE_KEY, JSON.stringify(pendingQueue)); } catch (e) {}
+  }
+  function restoreOfflineQueueToPending_() {
+    try {
+      const saved = localStorage.getItem(OFFLINE_KEY);
+      if (saved) { const arr = JSON.parse(saved); if (Array.isArray(arr) && arr.length) pendingQueue = arr.concat(pendingQueue); }
+    } catch (e) {}
+  }
+  function updateQueueNote_() {
+    const note = document.getElementById('queueNote');
+    if (!navigator.onLine) note.textContent = '📴 OFFLINE — ' + pendingQueue.length + ' scan tersimpan, akan dikirim otomatis saat online.';
+    else if (pendingQueue.length > 0 || inFlight) note.textContent = 'Menyinkronkan... (' + pendingQueue.length + ' sisa antrean)';
+    else note.textContent = '';
+  }
+  function refreshNetBadge_() {
+    const badge = document.getElementById('netBadge');
+    if (!navigator.onLine) { badge.className = 'badge-offline'; badge.textContent = 'OFFLINE'; }
+    else if (pendingQueue.length > 0 || inFlight) { badge.className = 'badge-syncing'; badge.textContent = 'SYNCING'; }
+    else { badge.className = 'badge-online'; badge.textContent = 'ONLINE'; }
+    updateQueueNote_();
+  }
+
+  // ================================================================
+  // DATA AWAL
+  // ================================================================
+  function loadKnownReceipts_() {
+    callApi('getKnownReceipts', {}).then(function (list) { knownReceipts = new Set(list || []); }).catch(function () {});
+  }
+  function loadMySummary_() {
+    callApi('getMySummary', { picId: CURRENT_USER.picId }).then(function (sum) {
+      if (!sum) return;
+      counters.valid = sum.valid || 0; counters.duplicate = sum.duplicate || 0; counters.error = sum.error || 0;
+      updateCounterUI_();
+    }).catch(function () {});
+  }
+
+  // ================================================================
+  // SOUND FEEDBACK
+  // ================================================================
+  function ensureAudio_() { if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)(); return audioCtx; }
+  function beep_(freq, durationMs, delayMs) {
+    if (!soundOn) return;
+    const ctx = ensureAudio_();
+    const t0 = ctx.currentTime + (delayMs || 0) / 1000;
+    const osc = ctx.createOscillator(); const gain = ctx.createGain();
+    osc.frequency.value = freq; osc.type = 'sine';
+    gain.gain.setValueAtTime(0.2, t0);
+    gain.gain.exponentialRampToValueAtTime(0.001, t0 + durationMs / 1000);
+    osc.connect(gain).connect(ctx.destination);
+    osc.start(t0); osc.stop(t0 + durationMs / 1000 + 0.02);
+  }
+  function playSound_(kind) {
+    if (kind === 'valid') beep_(1200, 90, 0);
+    else if (kind === 'duplicate') { beep_(600, 100, 0); beep_(600, 100, 150); }
+    else if (kind === 'invalid') beep_(300, 220, 0);
+    else if (kind === 'error') { beep_(220, 300, 0); beep_(220, 300, 350); }
+  }
+  function toggleSound() {
+    soundOn = !soundOn;
+    document.getElementById('soundBtn').textContent = soundOn ? '🔊' : '🔇';
+    if (soundOn) playSound_('valid');
+  }
+
+  // ================================================================
+  // SCAN PAKAI KAMERA HP (html5-qrcode) — berfungsi normal di sini
+  // karena halaman ini TIDAK dibungkus iframe Apps Script.
+  // ================================================================
+  let html5QrCode_ = null;
+  let cameraBusy_ = false;
+
+  function openCameraScan_() {
+    document.getElementById('cameraModalBackdrop').classList.remove('hidden');
+    if (typeof Html5Qrcode === 'undefined') { alert('Library kamera gagal dimuat. Cek koneksi internet.'); return; }
+
+    html5QrCode_ = new Html5Qrcode('cameraReaderRegion', {
+      formatsToSupport: [
+        Html5QrcodeSupportedFormats.CODE_128, Html5QrcodeSupportedFormats.CODE_39,
+        Html5QrcodeSupportedFormats.CODE_93, Html5QrcodeSupportedFormats.EAN_13,
+        Html5QrcodeSupportedFormats.EAN_8, Html5QrcodeSupportedFormats.UPC_A,
+        Html5QrcodeSupportedFormats.UPC_E, Html5QrcodeSupportedFormats.ITF,
+        Html5QrcodeSupportedFormats.CODABAR, Html5QrcodeSupportedFormats.QR_CODE
+      ],
+      verbose: false
+    });
+
+    html5QrCode_.start(
+      { facingMode: 'environment' },
+      { fps: 12, qrbox: { width: 260, height: 160 } },
+      function (decodedText) {
+        if (cameraBusy_) return;
+        cameraBusy_ = true;
+        handleScan_(decodedText);
+        setTimeout(function () { cameraBusy_ = false; }, 1200);
+      },
+      function () {}
+    ).catch(function (err) {
+      alert('Tidak bisa mengakses kamera: ' + err);
+      closeCameraScan_();
+    });
+  }
+
+  function closeCameraScan_() {
+    document.getElementById('cameraModalBackdrop').classList.add('hidden');
+    if (html5QrCode_) {
+      html5QrCode_.stop().then(function () { html5QrCode_.clear(); html5QrCode_ = null; }).catch(function () { html5QrCode_ = null; });
+    }
+  }
+</script>
+</body>
+</html>
