@@ -249,11 +249,17 @@
 
       <div class="tab-panel" id="tab-pic">
         <div class="panel-box">
-          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
-            <h3 style="margin:0;">Daftar Akun</h3>
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; flex-wrap:wrap; gap:10px;">
+            <h3 style="margin:0;">Daftar Akun &amp; Produktivitas</h3>
             <button class="btn-primary" onclick="openAddPicModal()">+ Tambah PIC</button>
           </div>
-          <table><thead><tr><th>PIC ID</th><th>Nama</th><th>Role</th><th>Status</th><th></th></tr></thead><tbody id="picTable"></tbody></table>
+          <div class="filter-row" style="margin-bottom:12px;">
+            <button class="tab-btn period-btn" data-period="1h" onclick="setPicStatsPeriod_('1h')">1 Jam Terakhir</button>
+            <button class="tab-btn period-btn" data-period="4h" onclick="setPicStatsPeriod_('4h')">4 Jam Terakhir</button>
+            <button class="tab-btn period-btn active" data-period="today" onclick="setPicStatsPeriod_('today')">Hari Ini</button>
+            <button class="tab-btn period-btn" data-period="week" onclick="setPicStatsPeriod_('week')">Minggu Ini (7 Hari)</button>
+          </div>
+          <table><thead><tr><th>PIC ID</th><th>Nama</th><th>Role</th><th>Status</th><th>Valid</th><th>Duplicate</th><th>Error</th><th></th></tr></thead><tbody id="picTable"></tbody></table>
         </div>
       </div>
 
@@ -661,6 +667,7 @@
   let picListCache = [];
   let picModalMode = 'add';
   let currentPeriod_ = 'today';
+  let picStatsPeriod_ = 'today';
   const PERIOD_LABELS_ = { '1h': '1 Jam Terakhir', '4h': '4 Jam Terakhir', 'today': 'Hari Ini', 'week': 'Minggu Ini (7 Hari)' };
 
   function setPeriod_(period) {
@@ -770,15 +777,22 @@
   }
 
   function loadPicManagementTable_() {
-    callApi('listPics', {}).then(function (pics) {
+    callApi('listPicsWithStats', { period: picStatsPeriod_ }).then(function (pics) {
       picListCache = pics;
       document.getElementById('picTable').innerHTML = pics.map(function (p, i) {
         return '<tr><td>' + escapeHtml_(p.PICID) + '</td><td>' + escapeHtml_(p.Nama) + '</td><td>' + escapeHtml_(p.Role) + '</td>' +
           '<td><span class="pill ' + (p.StatusAktif === 'Aktif' ? 'ACTIVE' : 'NONAKTIF') + '">' + escapeHtml_(p.StatusAktif) + '</span></td>' +
+          '<td>' + p.valid + '</td><td>' + p.duplicate + '</td><td>' + p.error + '</td>' +
           '<td style="display:flex; gap:6px;"><button class="btn-secondary" onclick="openEditPicModalByIndex(' + i + ')">Edit</button>' +
           '<button class="btn-danger" onclick="confirmDeletePic_(' + i + ')">Hapus</button></td></tr>';
       }).join('');
     });
+  }
+
+  function setPicStatsPeriod_(period) {
+    picStatsPeriod_ = period;
+    document.querySelectorAll('#tab-pic .period-btn').forEach(function (b) { b.classList.toggle('active', b.dataset.period === period); });
+    loadPicManagementTable_();
   }
 
   function confirmDeletePic_(i) {
