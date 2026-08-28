@@ -61,13 +61,46 @@
   .modal-backdrop { position:fixed; inset:0; background:rgba(0,0,0,0.6); display:flex; align-items:center; justify-content:center; z-index:50; padding:16px; }
   .modal { background:var(--panel); border:1px solid var(--border); border-radius:var(--radius); padding:20px; width:100%; max-width:420px; }
   .modal h3 { margin-top:0; }
+
+  /* ---------- DASHBOARD ---------- */
+  #dashboardView { padding:16px; max-width:1200px; margin:0 auto; }
+  .tabs { display:flex; gap:6px; margin-bottom:16px; flex-wrap:wrap; }
+  .tab-btn { background:var(--panel-2); color:var(--muted); border:1px solid var(--border); }
+  .tab-btn.active { background:var(--accent); color:white; border-color:var(--accent); }
+  .tab-panel { display:none; }
+  .tab-panel.active { display:block; }
+  .overview-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(130px, 1fr)); gap:12px; margin-bottom:20px; }
+  .ov-card { background:var(--panel); border:1px solid var(--border); border-radius:10px; padding:14px; }
+  .ov-card .n { font-size:22px; font-weight:800; }
+  .ov-card .l { font-size:12px; color:var(--muted); }
+  table { width:100%; border-collapse:collapse; font-size:13px; }
+  th, td { padding:8px 10px; text-align:left; border-bottom:1px solid var(--border); }
+  th { color:var(--muted); font-weight:600; font-size:11px; text-transform:uppercase; }
+  .panel-box { background:var(--panel); border:1px solid var(--border); border-radius:var(--radius); padding:16px; margin-bottom:16px; overflow-x:auto; }
+  .pill { padding:3px 8px; border-radius:20px; font-size:11px; font-weight:700; }
+  .pill.VALID { background:rgba(34,197,94,0.2); color:var(--green); }
+  .pill.DUPLICATE { background:rgba(234,179,8,0.2); color:var(--yellow); }
+  .pill.ERROR, .pill.INVALID { background:rgba(239,68,68,0.2); color:var(--red); }
+  .pill.ACTIVE { background:rgba(34,197,94,0.2); color:var(--green); }
+  .pill.IDLE { background:rgba(148,163,184,0.2); color:var(--muted); }
+  .pill.OFFLINE, .pill.NONAKTIF { background:rgba(239,68,68,0.15); color:var(--red); }
+  .filter-row { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:14px; align-items:end; }
+  .filter-row .field { display:flex; flex-direction:column; gap:4px; }
+  .filter-row label { font-size:11px; color:var(--muted); }
+  .btn-primary { background:var(--accent); color:white; }
+  .btn-secondary { background:var(--panel-2); color:var(--text); border:1px solid var(--border); }
+  .search-result-card { background:var(--panel-2); border-radius:10px; padding:16px; margin-top:12px; }
+  .modal .field { margin-bottom:12px; display:flex; flex-direction:column; gap:4px; }
+  .modal .field label { font-size:12px; color:var(--muted); }
+  .modal-actions { display:flex; gap:8px; justify-content:flex-end; margin-top:8px; }
+  .chart-wrap { min-height:180px; }
 </style>
 </head>
 <body>
 
   <!-- ============ GANTI URL INI setelah Deploy Apps Script ============ -->
   <script>
-    const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwZrfOuPcm0Pdi0xogKWP4NyUAiqF2--qKEBLvxaH8a7C7htpp__k_h53DDvQt1sUt1Bw/exec';
+    const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzEWwJZCbxATPRPYISgG4IOD5FKiFaINswszA8qu1UMLFV9JjI90asOi5dS9ttWuFvR/exec';
   </script>
   <!-- ==================================================================== -->
 
@@ -116,6 +149,116 @@
     </div>
 
     <div class="queue-note" id="queueNote"></div>
+
+    <button style="width:100%; margin-top:14px; background:var(--panel-2); color:var(--text); border:1px solid var(--border);" onclick="openMyHistory_()">📋 Riwayat Scan Saya (Hari Ini)</button>
+  </div>
+
+  <div class="modal-backdrop hidden" id="historyModalBackdrop">
+    <div class="modal" style="max-width:480px; max-height:80vh; overflow-y:auto;">
+      <h3 style="margin-top:0;">📋 Riwayat Scan Saya (Hari Ini)</h3>
+      <p style="color:var(--muted); font-size:13px;">Total hari ini: <b id="historyTotalCount">0</b></p>
+      <table><thead><tr><th>Resi</th><th>Jam</th><th>Status</th></tr></thead><tbody id="myHistoryTable"></tbody></table>
+      <div class="modal-actions"><button style="width:100%; background:var(--panel-2); color:var(--text); border:1px solid var(--border);" onclick="closeMyHistory_()">Tutup</button></div>
+    </div>
+  </div>
+
+  <div id="dashboardView" class="hidden">
+    <div class="topbar">
+      <div>
+        <div class="title">WAREHOUSE PACKAGE CHECKER</div>
+        <div class="who" id="dashWho"></div>
+      </div>
+      <div class="actions">
+        <button class="icon-btn" onclick="refreshOverview()">🔄 Refresh</button>
+        <button class="icon-btn" onclick="doLogout()">Keluar</button>
+      </div>
+    </div>
+
+    <div style="padding:16px; max-width:1200px; margin:0 auto;">
+      <div class="tabs">
+        <button class="tab-btn active" data-tab="overview" onclick="switchTab('overview')">Overview</button>
+        <button class="tab-btn" data-tab="search" onclick="switchTab('search')">Search Resi</button>
+        <button class="tab-btn" data-tab="history" onclick="switchTab('history')">Histori &amp; Filter</button>
+        <button class="tab-btn" data-tab="pic" onclick="switchTab('pic')">Kelola PIC</button>
+        <button class="tab-btn" data-tab="audit" onclick="switchTab('audit')">Audit Log</button>
+      </div>
+
+      <div class="tab-panel active" id="tab-overview">
+        <div class="overview-grid" id="ovGrid"></div>
+        <div class="panel-box">
+          <h3 style="margin-top:0;">Performa 7 PIC (Hari Ini)</h3>
+          <table><thead><tr><th>PIC</th><th>Valid</th><th>Duplicate</th><th>Error</th><th>Total</th></tr></thead><tbody id="perPicTable"></tbody></table>
+        </div>
+        <div class="panel-box">
+          <h3 style="margin-top:0;">Aktivitas PIC Real-time</h3>
+          <table><thead><tr><th>PIC</th><th>Status</th><th>Last Scan</th><th>Total</th></tr></thead><tbody id="activityTable"></tbody></table>
+        </div>
+      </div>
+
+      <div class="tab-panel" id="tab-search">
+        <div class="panel-box">
+          <div class="filter-row">
+            <div class="field" style="flex:1; min-width:200px;"><label>Nomor Resi</label><input id="searchReceiptInput" placeholder="Contoh: JP123456789"></div>
+            <button class="btn-primary" onclick="doSearchReceipt()">Cari</button>
+          </div>
+          <div id="searchResultBox"></div>
+        </div>
+      </div>
+
+      <div class="tab-panel" id="tab-history">
+        <div class="panel-box">
+          <div class="filter-row">
+            <div class="field"><label>Quick filter</label>
+              <select id="quickFilter" onchange="applyQuickFilter()">
+                <option value="">Custom</option><option value="today">Hari ini</option><option value="yesterday">Kemarin</option>
+                <option value="7d">7 hari</option><option value="30d">30 hari</option>
+              </select>
+            </div>
+            <div class="field"><label>Dari tanggal</label><input type="date" id="fStart"></div>
+            <div class="field"><label>Sampai tanggal</label><input type="date" id="fEnd"></div>
+            <div class="field"><label>PIC</label><select id="fPic"><option value="">Semua</option></select></div>
+            <div class="field"><label>Status</label>
+              <select id="fStatus"><option value="">Semua</option><option value="VALID">VALID</option><option value="DUPLICATE">DUPLICATE</option><option value="ERROR">ERROR</option></select>
+            </div>
+            <div class="field"><label>Nomor resi</label><input id="fReceipt" placeholder="opsional"></div>
+            <button class="btn-primary" onclick="doFilterHistory()">Terapkan</button>
+            <button class="btn-secondary" onclick="doExport()">⬇ Export CSV</button>
+          </div>
+          <table><thead><tr><th>Resi</th><th>PIC</th><th>Tanggal</th><th>Jam</th><th>Status</th><th>Keterangan</th></tr></thead><tbody id="historyTable"></tbody></table>
+        </div>
+      </div>
+
+      <div class="tab-panel" id="tab-pic">
+        <div class="panel-box">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+            <h3 style="margin:0;">Daftar Akun</h3>
+            <button class="btn-primary" onclick="openAddPicModal()">+ Tambah PIC</button>
+          </div>
+          <table><thead><tr><th>PIC ID</th><th>Nama</th><th>Role</th><th>Status</th><th></th></tr></thead><tbody id="picTable"></tbody></table>
+        </div>
+      </div>
+
+      <div class="tab-panel" id="tab-audit">
+        <div class="panel-box">
+          <table><thead><tr><th>Waktu</th><th>User</th><th>Aksi</th><th>Resi</th><th>Keterangan</th></tr></thead><tbody id="auditTable"></tbody></table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-backdrop hidden" id="picModalBackdrop">
+    <div class="modal">
+      <h3 id="picModalTitle">Tambah PIC</h3>
+      <div class="field"><label>PIC ID</label><input id="mPicId"></div>
+      <div class="field"><label>Nama</label><input id="mPicName"></div>
+      <div class="field"><label>PIN</label><input id="mPicPin" inputmode="numeric"></div>
+      <div class="field"><label>Role</label><select id="mPicRole"><option value="PIC">PIC</option><option value="Supervisor">Supervisor</option></select></div>
+      <div class="field"><label>Status</label><select id="mPicStatus"><option value="Aktif">Aktif</option><option value="Nonaktif">Nonaktif</option></select></div>
+      <div class="modal-actions">
+        <button class="btn-secondary" onclick="closePicModal()">Batal</button>
+        <button class="btn-primary" onclick="submitPicModal()">Simpan</button>
+      </div>
+    </div>
   </div>
 
   <div class="modal-backdrop hidden" id="cameraModalBackdrop">
@@ -229,17 +372,22 @@
 
   function enterApp() {
     document.getElementById('loginView').classList.add('hidden');
-    document.getElementById('scannerView').classList.remove('hidden');
-    document.getElementById('scannerWho').textContent = 'PIC: ' + CURRENT_USER.name;
-    setupScanInput_();
-    loadKnownReceipts_();
-    loadMySummary_();
-    restoreOfflineQueueToPending_();
-    setInterval(flushBatch_, BATCH_INTERVAL_MS);
-    setInterval(refreshNetBadge_, 3000);
-    window.addEventListener('online', refreshNetBadge_);
-    window.addEventListener('offline', refreshNetBadge_);
-    refreshNetBadge_();
+    if (CURRENT_USER.role === 'PIC') {
+      document.getElementById('scannerView').classList.remove('hidden');
+      document.getElementById('scannerWho').textContent = 'PIC: ' + CURRENT_USER.name;
+      setupScanInput_();
+      loadKnownReceipts_();
+      loadMySummary_();
+      restoreOfflineQueueToPending_();
+      setInterval(flushBatch_, BATCH_INTERVAL_MS);
+      setInterval(refreshNetBadge_, 3000);
+      window.addEventListener('online', refreshNetBadge_);
+      window.addEventListener('offline', refreshNetBadge_);
+      refreshNetBadge_();
+    } else {
+      document.getElementById('dashboardView').classList.remove('hidden');
+      initDashboardView();
+    }
   }
 
   function doLogout() {
@@ -406,17 +554,20 @@
     const ctx = ensureAudio_();
     const t0 = ctx.currentTime + (delayMs || 0) / 1000;
     const osc = ctx.createOscillator(); const gain = ctx.createGain();
-    osc.frequency.value = freq; osc.type = 'sine';
-    gain.gain.setValueAtTime(0.2, t0);
+    osc.frequency.value = freq; osc.type = 'square';
+    gain.gain.setValueAtTime(0.6, t0);
     gain.gain.exponentialRampToValueAtTime(0.001, t0 + durationMs / 1000);
     osc.connect(gain).connect(ctx.destination);
     osc.start(t0); osc.stop(t0 + durationMs / 1000 + 0.02);
   }
+  function vibrate_(pattern) {
+    if (navigator.vibrate) { try { navigator.vibrate(pattern); } catch (e) {} }
+  }
   function playSound_(kind) {
-    if (kind === 'valid') beep_(1200, 90, 0);
-    else if (kind === 'duplicate') { beep_(600, 100, 0); beep_(600, 100, 150); }
-    else if (kind === 'invalid') beep_(300, 220, 0);
-    else if (kind === 'error') { beep_(220, 300, 0); beep_(220, 300, 350); }
+    if (kind === 'valid') { beep_(1400, 110, 0); vibrate_(40); }
+    else if (kind === 'duplicate') { beep_(700, 130, 0); beep_(700, 130, 170); vibrate_([60, 80, 60]); }
+    else if (kind === 'invalid') { beep_(300, 260, 0); vibrate_(200); }
+    else if (kind === 'error') { beep_(220, 320, 0); beep_(220, 320, 360); vibrate_([150, 100, 150]); }
   }
   function toggleSound() {
     soundOn = !soundOn;
@@ -467,6 +618,197 @@
     if (html5QrCode_) {
       html5QrCode_.stop().then(function () { html5QrCode_.clear(); html5QrCode_ = null; }).catch(function () { html5QrCode_ = null; });
     }
+  }
+
+  // ---------------- RIWAYAT SCAN SAYA ----------------
+  function openMyHistory_() {
+    document.getElementById('historyModalBackdrop').classList.remove('hidden');
+    document.getElementById('myHistoryTable').innerHTML = '<tr><td colspan="3" style="color:var(--muted)">Memuat...</td></tr>';
+    callApi('getMyHistory', { picId: CURRENT_USER.picId, limit: 200 }).then(function (rows) {
+      document.getElementById('historyTotalCount').textContent = rows.length;
+      document.getElementById('myHistoryTable').innerHTML = rows.map(function (r) {
+        return '<tr><td>' + escapeHtml_(r.receipt) + '</td><td>' + r.time + '</td><td><span class="pill ' + r.status + '">' + r.status + '</span></td></tr>';
+      }).join('') || '<tr><td colspan="3" style="color:var(--muted)">Belum ada scan hari ini</td></tr>';
+    }).catch(function (e) {
+      document.getElementById('myHistoryTable').innerHTML = '<tr><td colspan="3" style="color:var(--red)">Gagal memuat: ' + e + '</td></tr>';
+    });
+  }
+
+  function closeMyHistory_() {
+    document.getElementById('historyModalBackdrop').classList.add('hidden');
+  }
+
+  function escapeHtml_(v) {
+    return String(v === null || v === undefined ? '' : v).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  }
+
+  // ================================================================
+  // DASHBOARD (SUPERVISOR/ADMIN) — versi GitHub Pages, pakai callApi (JSONP)
+  // ================================================================
+  let picListCache = [];
+  let picModalMode = 'add';
+
+  function initDashboardView() {
+    document.getElementById('dashWho').textContent = CURRENT_USER.role + ': ' + CURRENT_USER.name;
+    loadPicListForFilters_();
+    refreshOverview();
+    loadPicManagementTable_();
+    loadAuditLog_();
+    setInterval(function () {
+      const activeTab = document.querySelector('.tab-btn.active').dataset.tab;
+      if (activeTab === 'overview') refreshOverview();
+    }, 5000);
+  }
+
+  function switchTab(tab) {
+    document.querySelectorAll('.tab-btn').forEach(function (b) { b.classList.toggle('active', b.dataset.tab === tab); });
+    document.querySelectorAll('.tab-panel').forEach(function (p) { p.classList.toggle('active', p.id === 'tab-' + tab); });
+  }
+
+  function refreshOverview() {
+    callApi('getDashboardOverview', {}).then(renderOverview_).catch(function (e) { console.error(e); });
+  }
+
+  function renderOverview_(d) {
+    document.getElementById('ovGrid').innerHTML = [
+      ['Total Scan Hari Ini', d.totalScanToday], ['Valid', d.totalValid], ['Duplicate', d.totalDuplicate],
+      ['Error', d.totalError], ['Total Resi Unik', d.totalUniqueReceipts], ['PIC Aktif', d.activePicCount]
+    ].map(function (x) { return '<div class="ov-card"><div class="n">' + x[1] + '</div><div class="l">' + x[0] + '</div></div>'; }).join('');
+
+    document.getElementById('perPicTable').innerHTML = d.perPic.map(function (p) {
+      return '<tr><td>' + escapeHtml_(p.name) + ' (' + escapeHtml_(p.picId) + ')</td><td>' + p.valid + '</td><td>' + p.duplicate + '</td><td>' + p.error + '</td><td>' + p.total + '</td></tr>';
+    }).join('') || '<tr><td colspan="5" style="color:var(--muted)">Belum ada scan hari ini</td></tr>';
+
+    document.getElementById('activityTable').innerHTML = d.activity.map(function (a) {
+      const last = a.lastScan ? new Date(a.lastScan).toLocaleTimeString('id-ID') : '-';
+      return '<tr><td>' + escapeHtml_(a.name) + '</td><td><span class="pill ' + a.status + '">' + a.status + '</span></td><td>' + last + '</td><td>' + a.total + '</td></tr>';
+    }).join('');
+  }
+
+  function doSearchReceipt() {
+    const receipt = document.getElementById('searchReceiptInput').value.trim();
+    if (!receipt) return;
+    const box = document.getElementById('searchResultBox');
+    box.innerHTML = '<p style="color:var(--muted)">Mencari...</p>';
+    callApi('searchReceipt', { receipt: receipt }).then(function (res) {
+      if (!res.found) { box.innerHTML = '<div class="search-result-card">Resi <b>' + escapeHtml_(receipt) + '</b> tidak ditemukan.</div>'; return; }
+      let html = '<div class="search-result-card"><div><span class="pill ' + res.status + '">' + res.status + '</span></div>';
+      if (res.firstScan) html += '<p>Pertama kali discan oleh <b>' + escapeHtml_(res.firstScan.picName) + '</b> pada ' + res.firstScan.date + ' ' + res.firstScan.time + '</p>';
+      if (res.duplicateAttempts && res.duplicateAttempts.length) {
+        html += '<p>Percobaan duplicate:</p><ul>' + res.duplicateAttempts.map(function (a) { return '<li>' + escapeHtml_(a.picName) + ' — ' + a.date + ' ' + a.time + '</li>'; }).join('') + '</ul>';
+      }
+      box.innerHTML = html + '</div>';
+    }).catch(function (e) { box.innerHTML = '<p style="color:var(--red)">Gagal mencari: ' + e + '</p>'; });
+  }
+
+  function loadPicListForFilters_() {
+    callApi('listPics', {}).then(function (pics) {
+      picListCache = pics;
+      const sel = document.getElementById('fPic');
+      pics.filter(function (p) { return p.Role === 'PIC'; }).forEach(function (p) {
+        const opt = document.createElement('option'); opt.value = p.PICID; opt.textContent = p.Nama + ' (' + p.PICID + ')'; sel.appendChild(opt);
+      });
+    });
+  }
+
+  function applyQuickFilter() {
+    const v = document.getElementById('quickFilter').value;
+    const today = new Date();
+    function fmt(d) { return d.toISOString().slice(0, 10); }
+    if (v === 'today') { document.getElementById('fStart').value = fmt(today); document.getElementById('fEnd').value = fmt(today); }
+    else if (v === 'yesterday') { const y = new Date(today); y.setDate(y.getDate() - 1); document.getElementById('fStart').value = fmt(y); document.getElementById('fEnd').value = fmt(y); }
+    else if (v === '7d') { const s = new Date(today); s.setDate(s.getDate() - 6); document.getElementById('fStart').value = fmt(s); document.getElementById('fEnd').value = fmt(today); }
+    else if (v === '30d') { const s = new Date(today); s.setDate(s.getDate() - 29); document.getElementById('fStart').value = fmt(s); document.getElementById('fEnd').value = fmt(today); }
+    if (v) doFilterHistory();
+  }
+
+  function currentFilters_() {
+    function toSheetDate(v) { if (!v) return ''; const p = v.split('-'); return p[2] + '-' + p[1] + '-' + p[0]; }
+    return {
+      startDate: toSheetDate(document.getElementById('fStart').value), endDate: toSheetDate(document.getElementById('fEnd').value),
+      picId: document.getElementById('fPic').value, status: document.getElementById('fStatus').value, receipt: document.getElementById('fReceipt').value.trim()
+    };
+  }
+
+  function doFilterHistory() {
+    const tbody = document.getElementById('historyTable');
+    tbody.innerHTML = '<tr><td colspan="6" style="color:var(--muted)">Memuat...</td></tr>';
+    callApi('getFilteredTransactions', { filters: currentFilters_(), limit: 1000 }).then(function (rows) {
+      tbody.innerHTML = rows.map(function (r) {
+        return '<tr><td>' + escapeHtml_(r.ReceiptNumber) + '</td><td>' + escapeHtml_(r.PICName) + '</td><td>' + r.Date + '</td><td>' + r.Time + '</td><td><span class="pill ' + r.Status + '">' + r.Status + '</span></td><td>' + escapeHtml_(r.Notes || '') + '</td></tr>';
+      }).join('') || '<tr><td colspan="6" style="color:var(--muted)">Tidak ada data</td></tr>';
+    }).catch(function (e) { tbody.innerHTML = '<tr><td colspan="6" style="color:var(--red)">Error: ' + e + '</td></tr>'; });
+  }
+
+  function doExport() {
+    const f = currentFilters_();
+    const params = new URLSearchParams({ action: 'export' });
+    Object.keys(f).forEach(function (k) { if (f[k]) params.append(k, f[k]); });
+    window.open(APPS_SCRIPT_URL + '?' + params.toString(), '_blank');
+  }
+
+  function loadPicManagementTable_() {
+    callApi('listPics', {}).then(function (pics) {
+      picListCache = pics;
+      document.getElementById('picTable').innerHTML = pics.map(function (p, i) {
+        return '<tr><td>' + escapeHtml_(p.PICID) + '</td><td>' + escapeHtml_(p.Nama) + '</td><td>' + escapeHtml_(p.Role) + '</td>' +
+          '<td><span class="pill ' + (p.StatusAktif === 'Aktif' ? 'ACTIVE' : 'NONAKTIF') + '">' + escapeHtml_(p.StatusAktif) + '</span></td>' +
+          '<td><button class="btn-secondary" onclick="openEditPicModalByIndex(' + i + ')">Edit</button></td></tr>';
+      }).join('');
+    });
+  }
+
+  function openEditPicModalByIndex(i) { openEditPicModal(picListCache[i]); }
+
+  function openAddPicModal() {
+    picModalMode = 'add';
+    document.getElementById('picModalTitle').textContent = 'Tambah PIC';
+    document.getElementById('mPicId').value = ''; document.getElementById('mPicId').disabled = false;
+    document.getElementById('mPicName').value = ''; document.getElementById('mPicPin').value = '';
+    document.getElementById('mPicRole').value = 'PIC'; document.getElementById('mPicStatus').value = 'Aktif';
+    document.getElementById('picModalBackdrop').classList.remove('hidden');
+  }
+
+  function openEditPicModal(p) {
+    picModalMode = 'edit';
+    document.getElementById('picModalTitle').textContent = 'Edit PIC — ' + p.PICID;
+    document.getElementById('mPicId').value = p.PICID; document.getElementById('mPicId').disabled = true;
+    document.getElementById('mPicName').value = p.Nama; document.getElementById('mPicPin').value = '';
+    document.getElementById('mPicPin').placeholder = 'Kosongkan jika tidak reset PIN';
+    document.getElementById('mPicRole').value = p.Role; document.getElementById('mPicStatus').value = p.StatusAktif;
+    document.getElementById('picModalBackdrop').classList.remove('hidden');
+  }
+
+  function closePicModal() { document.getElementById('picModalBackdrop').classList.add('hidden'); }
+
+  function submitPicModal() {
+    const picId = document.getElementById('mPicId').value.trim();
+    const name = document.getElementById('mPicName').value.trim();
+    const pin = document.getElementById('mPicPin').value.trim();
+    const role = document.getElementById('mPicRole').value;
+    const status = document.getElementById('mPicStatus').value;
+
+    if (picModalMode === 'add') {
+      if (!picId || !name || !pin) { alert('PIC ID, Nama, dan PIN wajib diisi.'); return; }
+      callApi('addPic', { actorId: CURRENT_USER.picId, actorName: CURRENT_USER.name, newPic: { picId: picId, name: name, pin: pin, role: role } })
+        .then(function () { closePicModal(); loadPicManagementTable_(); loadPicListForFilters_(); })
+        .catch(function (e) { alert('Gagal: ' + e); });
+    } else {
+      const changes = { name: name, statusAktif: status };
+      if (pin) changes.pin = pin;
+      callApi('updatePic', { actorId: CURRENT_USER.picId, actorName: CURRENT_USER.name, picId: picId, changes: changes })
+        .then(function () { closePicModal(); loadPicManagementTable_(); })
+        .catch(function (e) { alert('Gagal: ' + e); });
+    }
+  }
+
+  function loadAuditLog_() {
+    callApi('getAuditLog', { limit: 300 }).then(function (rows) {
+      document.getElementById('auditTable').innerHTML = rows.map(function (r) {
+        const t = r.Timestamp ? new Date(r.Timestamp).toLocaleString('id-ID') : '';
+        return '<tr><td>' + t + '</td><td>' + escapeHtml_(r.PICName) + '</td><td>' + escapeHtml_(r.Action) + '</td><td>' + escapeHtml_(r.ReceiptNumber || '') + '</td><td>' + escapeHtml_(r.Description || '') + '</td></tr>';
+      }).join('');
+    });
   }
 </script>
 </body>
