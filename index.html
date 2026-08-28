@@ -154,9 +154,35 @@
   // preflight OPTIONS (yang tidak didukung Apps Script) — body tetap JSON.
   // ================================================================
   function callApi(action, payload) {
-    const url = APPS_SCRIPT_URL + '?api=1&action=' + encodeURIComponent(action) +
-      '&payload=' + encodeURIComponent(JSON.stringify(payload || {}));
-    return fetch(url).then(function (res) { return res.json(); });
+    return new Promise(function (resolve, reject) {
+      const cbName = 'wpc_cb_' + Date.now() + '_' + Math.random().toString(36).slice(2, 8);
+      const url = APPS_SCRIPT_URL + '?api=1&action=' + encodeURIComponent(action) +
+        '&payload=' + encodeURIComponent(JSON.stringify(payload || {})) +
+        '&callback=' + cbName;
+
+      let finished = false;
+      const script = document.createElement('script');
+
+      function cleanup() {
+        delete window[cbName];
+        if (script.parentNode) script.parentNode.removeChild(script);
+      }
+
+      window[cbName] = function (data) {
+        finished = true;
+        cleanup();
+        resolve(data);
+      };
+      script.onerror = function () {
+        if (!finished) { cleanup(); reject(new Error('Gagal memuat dari server (cek APPS_SCRIPT_URL / koneksi)')); }
+      };
+      setTimeout(function () {
+        if (!finished) { cleanup(); reject(new Error('Timeout menghubungi server')); }
+      }, 15000);
+
+      script.src = url;
+      document.body.appendChild(script);
+    });
   }
 
   // ================================================================
