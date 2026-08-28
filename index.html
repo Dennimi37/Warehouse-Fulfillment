@@ -763,9 +763,13 @@
     document.getElementById('csSubmitBtn').textContent = 'MENYIMPAN...';
 
     callApi('submitCsActivity', { picId: CURRENT_USER.picId, picName: CURRENT_USER.name, session: session, qtyCetak: qty, notes: notes })
-      .then(function () {
+      .then(function (res) {
         document.getElementById('csSubmitBtn').disabled = false;
         document.getElementById('csSubmitBtn').textContent = 'SIMPAN';
+        if (!res || !res.success) {
+          renderCsStatus_('error', '🔴', 'Gagal menyimpan: ' + (res && res.message ? res.message : 'Server tidak mengenali aksi ini — kemungkinan Apps Script belum di-deploy ulang dengan kode terbaru.'));
+          return;
+        }
         renderCsStatus_('valid', '🟢', 'Tersimpan! Session: ' + session + ', Qty Cetak: ' + qty);
         document.getElementById('csSessionInput').value = '';
         document.getElementById('csQtyInput').value = '';
@@ -800,6 +804,10 @@
   function loadMyCsHistoryData_() {
     document.getElementById('csHistoryTable').innerHTML = '<tr><td colspan="5" style="color:var(--muted)">Memuat...</td></tr>';
     callApi('getMyCsReport', { picId: CURRENT_USER.picId, period: csHistoryPeriod_ }).then(function (rep) {
+      if (!rep || !rep.items) {
+        document.getElementById('csHistoryTable').innerHTML = '<tr><td colspan="5" style="color:var(--red)">Server tidak mengenali data ini — kemungkinan Apps Script belum di-deploy ulang dengan kode terbaru.</td></tr>';
+        return;
+      }
       document.getElementById('csRepSession').textContent = rep.totalSession;
       document.getElementById('csRepQty').textContent = rep.totalQtyCetak;
       document.getElementById('csRepCount').textContent = rep.entryCount;
