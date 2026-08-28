@@ -7,9 +7,9 @@
 <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
 <style>
   :root {
-    --bg: #0f172a; --panel: #1e293b; --panel-2: #16213a; --border: #2d3b55;
-    --text: #e5e9f0; --muted: #93a2c0; --accent: #3b82f6;
-    --green: #22c55e; --yellow: #eab308; --red: #ef4444; --radius: 12px;
+    --bg: #f3efe0; --panel: #fffdf8; --panel-2: #ece2c8; --border: #d6c8a3;
+    --text: #23352a; --muted: #75816f; --accent: #2f5233;
+    --green: #3f7d4f; --yellow: #a8790a; --red: #a3453d; --radius: 12px;
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   }
   * { box-sizing: border-box; }
@@ -34,17 +34,17 @@
   .topbar .actions { display:flex; gap:8px; align-items:center; }
   .icon-btn { background:var(--panel-2); color:var(--text); border:1px solid var(--border); padding:8px 10px; font-size:13px; }
   .badge-offline { background:var(--red); color:white; padding:3px 8px; border-radius:20px; font-size:11px; font-weight:700; }
-  .badge-syncing { background:var(--yellow); color:#1a1a1a; padding:3px 8px; border-radius:20px; font-size:11px; font-weight:700; }
-  .badge-online { background:var(--green); color:#1a1a1a; padding:3px 8px; border-radius:20px; font-size:11px; font-weight:700; }
+  .badge-syncing { background:var(--yellow); color:white; padding:3px 8px; border-radius:20px; font-size:11px; font-weight:700; }
+  .badge-online { background:var(--green); color:white; padding:3px 8px; border-radius:20px; font-size:11px; font-weight:700; }
 
   #scannerView { max-width:480px; margin:0 auto; padding:16px; }
   .scan-box { background:var(--panel); border:1px solid var(--border); border-radius:var(--radius); padding:20px; margin-bottom:16px; text-align:center; }
   .scan-box label { display:block; font-size:12px; color:var(--muted); margin-bottom:8px; letter-spacing:1px; }
   #scanInput { font-size:22px; text-align:center; padding:16px; letter-spacing:1px; }
   .status-panel { border-radius:var(--radius); padding:20px; text-align:center; margin-bottom:16px; background:var(--panel); border:1px solid var(--border); }
-  .status-panel.valid { background:rgba(34,197,94,0.15); border-color:var(--green); }
-  .status-panel.duplicate { background:rgba(234,179,8,0.15); border-color:var(--yellow); }
-  .status-panel.invalid, .status-panel.error { background:rgba(239,68,68,0.15); border-color:var(--red); }
+  .status-panel.valid { background:rgba(63,125,79,0.18); border-color:var(--green); }
+  .status-panel.duplicate { background:rgba(168,121,10,0.18); border-color:var(--yellow); }
+  .status-panel.invalid, .status-panel.error { background:rgba(163,69,61,0.18); border-color:var(--red); }
   .status-panel .icon { font-size:40px; line-height:1; margin-bottom:8px; }
   .status-panel .msg { font-weight:700; font-size:16px; }
   .status-panel .last-receipt { font-size:13px; color:var(--muted); margin-top:6px; word-break:break-all; }
@@ -78,12 +78,12 @@
   th { color:var(--muted); font-weight:600; font-size:11px; text-transform:uppercase; }
   .panel-box { background:var(--panel); border:1px solid var(--border); border-radius:var(--radius); padding:16px; margin-bottom:16px; overflow-x:auto; }
   .pill { padding:3px 8px; border-radius:20px; font-size:11px; font-weight:700; }
-  .pill.VALID { background:rgba(34,197,94,0.2); color:var(--green); }
-  .pill.DUPLICATE { background:rgba(234,179,8,0.2); color:var(--yellow); }
-  .pill.ERROR, .pill.INVALID { background:rgba(239,68,68,0.2); color:var(--red); }
-  .pill.ACTIVE { background:rgba(34,197,94,0.2); color:var(--green); }
-  .pill.IDLE { background:rgba(148,163,184,0.2); color:var(--muted); }
-  .pill.OFFLINE, .pill.NONAKTIF { background:rgba(239,68,68,0.15); color:var(--red); }
+  .pill.VALID { background:rgba(63,125,79,0.22); color:var(--green); }
+  .pill.DUPLICATE { background:rgba(168,121,10,0.22); color:var(--yellow); }
+  .pill.ERROR, .pill.INVALID { background:rgba(163,69,61,0.22); color:var(--red); }
+  .pill.ACTIVE { background:rgba(63,125,79,0.22); color:var(--green); }
+  .pill.IDLE { background:rgba(117,129,111,0.22); color:var(--muted); }
+  .pill.OFFLINE, .pill.NONAKTIF { background:rgba(163,69,61,0.18); color:var(--red); }
   .filter-row { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:14px; align-items:end; }
   .filter-row .field { display:flex; flex-direction:column; gap:4px; }
   .filter-row label { font-size:11px; color:var(--muted); }
@@ -100,7 +100,7 @@
 
   <!-- ============ GANTI URL INI setelah Deploy Apps Script ============ -->
   <script>
-    const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxX0Pe4Cqd3I5toV4SAkPH44hie-UUk5r62vVRbJlRt7w3LrdLen1L7IU7DJpbsLXdPkg/exec';
+    const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbz3N4rs4iYe6fexjzm2CLREt0pgnnzwEeddKKHJncZ7dyMUOHJRLZUAvxLNNXgq8OpZjA/exec';
     const API_PROXY_URL = 'https://fulfillment.deniikhsan495.workers.dev';
   </script>
   <!-- ==================================================================== -->
@@ -151,14 +151,24 @@
 
     <div class="queue-note" id="queueNote"></div>
 
-    <button style="width:100%; margin-top:14px; background:var(--panel-2); color:var(--text); border:1px solid var(--border);" onclick="openMyHistory_()">📋 Riwayat Scan Saya (Hari Ini)</button>
+    <button style="width:100%; margin-top:14px; background:var(--panel-2); color:var(--text); border:1px solid var(--border);" onclick="openMyHistory_()">📋 Riwayat &amp; Hasil Kerja Saya</button>
   </div>
 
   <div class="modal-backdrop hidden" id="historyModalBackdrop">
     <div class="modal" style="max-width:480px; max-height:80vh; overflow-y:auto;">
-      <h3 style="margin-top:0;">📋 Riwayat Scan Saya (Hari Ini)</h3>
-      <p style="color:var(--muted); font-size:13px;">Total hari ini: <b id="historyTotalCount">0</b></p>
-      <table><thead><tr><th>Resi</th><th>Jam</th><th>Status</th></tr></thead><tbody id="myHistoryTable"></tbody></table>
+      <h3 style="margin-top:0;">📋 Riwayat &amp; Hasil Kerja Saya</h3>
+      <div class="filter-row" style="margin-bottom:10px;">
+        <button class="tab-btn period-btn" data-period="4h" onclick="setMyHistoryPeriod_('4h')">4 Jam Terakhir</button>
+        <button class="tab-btn period-btn active" data-period="today" onclick="setMyHistoryPeriod_('today')">Hari Ini</button>
+        <button class="tab-btn period-btn" data-period="week" onclick="setMyHistoryPeriod_('week')">Minggu Ini</button>
+      </div>
+      <div class="stats-grid" style="margin-bottom:14px;">
+        <div class="stat-card valid"><div class="n" id="myRepValid">0</div><div class="l">VALID</div></div>
+        <div class="stat-card duplicate"><div class="n" id="myRepDup">0</div><div class="l">DUPLICATE</div></div>
+        <div class="stat-card error"><div class="n" id="myRepErr">0</div><div class="l">ERROR</div></div>
+        <div class="stat-card total"><div class="n" id="myRepTotal">0</div><div class="l">TOTAL</div></div>
+      </div>
+      <table><thead><tr><th>Resi</th><th>Tanggal</th><th>Jam</th><th>Status</th></tr></thead><tbody id="myHistoryTable"></tbody></table>
       <div class="modal-actions"><button style="width:100%; background:var(--panel-2); color:var(--text); border:1px solid var(--border);" onclick="closeMyHistory_()">Tutup</button></div>
     </div>
   </div>
@@ -185,10 +195,15 @@
       </div>
 
       <div class="tab-panel active" id="tab-overview">
+        <div class="filter-row" style="margin-bottom:14px;">
+          <button class="tab-btn period-btn" data-period="4h" onclick="setPeriod_('4h')">4 Jam Terakhir</button>
+          <button class="tab-btn period-btn active" data-period="today" onclick="setPeriod_('today')">Hari Ini</button>
+          <button class="tab-btn period-btn" data-period="week" onclick="setPeriod_('week')">Minggu Ini (7 Hari)</button>
+        </div>
         <div class="overview-grid" id="ovGrid"></div>
         <div class="panel-box">
-          <h3 style="margin-top:0;">Performa 7 PIC (Hari Ini)</h3>
-          <table><thead><tr><th>PIC</th><th>Valid</th><th>Duplicate</th><th>Error</th><th>Total</th></tr></thead><tbody id="perPicTable"></tbody></table>
+          <h3 style="margin-top:0;" id="perPicTitle">Klasemen PIC — Hari Ini</h3>
+          <table><thead><tr><th>#</th><th>PIC</th><th>Valid</th><th>Duplicate</th><th>Error</th><th>Total</th></tr></thead><tbody id="perPicTable"></tbody></table>
         </div>
         <div class="panel-box">
           <h3 style="margin-top:0;">Aktivitas PIC Real-time</h3>
@@ -600,17 +615,32 @@
     }
   }
 
-  // ---------------- RIWAYAT SCAN SAYA ----------------
+  // ---------------- RIWAYAT & HASIL KERJA SAYA ----------------
+  let myHistoryPeriod_ = 'today';
+
+  function setMyHistoryPeriod_(period) {
+    myHistoryPeriod_ = period;
+    document.querySelectorAll('#historyModalBackdrop .period-btn').forEach(function (b) { b.classList.toggle('active', b.dataset.period === period); });
+    loadMyHistoryData_();
+  }
+
   function openMyHistory_() {
     document.getElementById('historyModalBackdrop').classList.remove('hidden');
-    document.getElementById('myHistoryTable').innerHTML = '<tr><td colspan="3" style="color:var(--muted)">Memuat...</td></tr>';
-    callApi('getMyHistory', { picId: CURRENT_USER.picId, limit: 200 }).then(function (rows) {
-      document.getElementById('historyTotalCount').textContent = rows.length;
-      document.getElementById('myHistoryTable').innerHTML = rows.map(function (r) {
-        return '<tr><td>' + escapeHtml_(r.receipt) + '</td><td>' + r.time + '</td><td><span class="pill ' + r.status + '">' + r.status + '</span></td></tr>';
-      }).join('') || '<tr><td colspan="3" style="color:var(--muted)">Belum ada scan hari ini</td></tr>';
+    loadMyHistoryData_();
+  }
+
+  function loadMyHistoryData_() {
+    document.getElementById('myHistoryTable').innerHTML = '<tr><td colspan="4" style="color:var(--muted)">Memuat...</td></tr>';
+    callApi('getMyReport', { picId: CURRENT_USER.picId, period: myHistoryPeriod_ }).then(function (rep) {
+      document.getElementById('myRepValid').textContent = rep.valid;
+      document.getElementById('myRepDup').textContent = rep.duplicate;
+      document.getElementById('myRepErr').textContent = rep.error;
+      document.getElementById('myRepTotal').textContent = rep.total;
+      document.getElementById('myHistoryTable').innerHTML = rep.items.map(function (r) {
+        return '<tr><td>' + escapeHtml_(r.receipt) + '</td><td>' + r.date + '</td><td>' + r.time + '</td><td><span class="pill ' + r.status + '">' + r.status + '</span></td></tr>';
+      }).join('') || '<tr><td colspan="4" style="color:var(--muted)">Belum ada scan pada periode ini</td></tr>';
     }).catch(function (e) {
-      document.getElementById('myHistoryTable').innerHTML = '<tr><td colspan="3" style="color:var(--red)">Gagal memuat: ' + e + '</td></tr>';
+      document.getElementById('myHistoryTable').innerHTML = '<tr><td colspan="4" style="color:var(--red)">Gagal memuat: ' + e + '</td></tr>';
     });
   }
 
@@ -627,6 +657,14 @@
   // ================================================================
   let picListCache = [];
   let picModalMode = 'add';
+  let currentPeriod_ = 'today';
+  const PERIOD_LABELS_ = { '4h': '4 Jam Terakhir', 'today': 'Hari Ini', 'week': 'Minggu Ini (7 Hari)' };
+
+  function setPeriod_(period) {
+    currentPeriod_ = period;
+    document.querySelectorAll('.period-btn').forEach(function (b) { b.classList.toggle('active', b.dataset.period === period); });
+    refreshOverview();
+  }
 
   function initDashboardView() {
     document.getElementById('dashWho').textContent = CURRENT_USER.role + ': ' + CURRENT_USER.name;
@@ -646,18 +684,19 @@
   }
 
   function refreshOverview() {
-    callApi('getDashboardOverview', {}).then(renderOverview_).catch(function (e) { console.error(e); });
+    callApi('getDashboardOverview', { period: currentPeriod_ }).then(renderOverview_).catch(function (e) { console.error(e); });
   }
 
   function renderOverview_(d) {
+    document.getElementById('perPicTitle').textContent = 'Klasemen PIC — ' + PERIOD_LABELS_[d.period];
     document.getElementById('ovGrid').innerHTML = [
-      ['Total Scan Hari Ini', d.totalScanToday], ['Valid', d.totalValid], ['Duplicate', d.totalDuplicate],
+      ['Total Scan (' + PERIOD_LABELS_[d.period] + ')', d.totalScanToday], ['Valid', d.totalValid], ['Duplicate', d.totalDuplicate],
       ['Error', d.totalError], ['Total Resi Unik', d.totalUniqueReceipts], ['PIC Aktif', d.activePicCount]
     ].map(function (x) { return '<div class="ov-card"><div class="n">' + x[1] + '</div><div class="l">' + x[0] + '</div></div>'; }).join('');
 
     document.getElementById('perPicTable').innerHTML = d.perPic.map(function (p) {
-      return '<tr><td>' + escapeHtml_(p.name) + ' (' + escapeHtml_(p.picId) + ')</td><td>' + p.valid + '</td><td>' + p.duplicate + '</td><td>' + p.error + '</td><td>' + p.total + '</td></tr>';
-    }).join('') || '<tr><td colspan="5" style="color:var(--muted)">Belum ada scan hari ini</td></tr>';
+      return '<tr><td>' + p.rank + '</td><td>' + escapeHtml_(p.name) + ' (' + escapeHtml_(p.picId) + ')</td><td>' + p.valid + '</td><td>' + p.duplicate + '</td><td>' + p.error + '</td><td>' + p.total + '</td></tr>';
+    }).join('') || '<tr><td colspan="6" style="color:var(--muted)">Belum ada scan pada periode ini</td></tr>';
 
     document.getElementById('activityTable').innerHTML = d.activity.map(function (a) {
       const last = a.lastScan ? new Date(a.lastScan).toLocaleTimeString('id-ID') : '-';
