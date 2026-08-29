@@ -298,7 +298,7 @@
 
       <div class="tab-panel active" id="tab-overview">
         <div class="filter-row" style="margin-bottom:10px;">
-          <button class="tab-btn period-btn" data-period="1h" onclick="setPeriod_('1h')">1 Jam Terakhir</button>
+          <button class="tab-btn period-btn" data-period="2h" onclick="setPeriod_('2h')">2 Jam Terakhir</button>
           <button class="tab-btn period-btn active" data-period="today" onclick="setPeriod_('today')">Hari Ini</button>
           <button class="tab-btn period-btn" data-period="yesterday" onclick="setPeriod_('yesterday')">Kemarin</button>
         </div>
@@ -309,13 +309,13 @@
         </div>
         <div class="overview-grid" id="ovGrid"></div>
         <div class="panel-box">
+          <h3 style="margin-top:0;" id="perPicTitle">Klasemen Staff — Hari Ini</h3>
+          <table><thead><tr><th>#</th><th>Staff</th><th>Valid</th><th>Duplicate</th><th>Error</th><th>Total</th></tr></thead><tbody id="perPicTable"></tbody></table>
+        </div>
+        <div class="panel-box">
           <h3 style="margin-top:0;" id="ovCsTitle">CS Activity — Hari Ini</h3>
           <div class="overview-grid" id="ovCsGrid" style="margin-bottom:14px;"></div>
           <table><thead><tr><th>#</th><th>Nama</th><th>Session</th><th>Qty Cetak</th><th>Entri</th></tr></thead><tbody id="ovCsTable"></tbody></table>
-        </div>
-        <div class="panel-box">
-          <h3 style="margin-top:0;" id="perPicTitle">Klasemen Staff — Hari Ini</h3>
-          <table><thead><tr><th>#</th><th>Staff</th><th>Valid</th><th>Duplicate</th><th>Error</th><th>Total</th></tr></thead><tbody id="perPicTable"></tbody></table>
         </div>
         <div class="panel-box">
           <h3 style="margin-top:0;">Aktivitas Real-time</h3>
@@ -363,11 +363,12 @@
             <button class="btn-primary" onclick="openAddPicModal()">+ Tambah Staff</button>
           </div>
           <div class="filter-row" style="margin-bottom:12px;">
-            <button class="tab-btn period-btn" data-period="1h" onclick="setPicStatsPeriod_('1h')">1 Jam Terakhir</button>
-            <button class="tab-btn period-btn" data-period="4h" onclick="setPicStatsPeriod_('4h')">4 Jam Terakhir</button>
             <button class="tab-btn period-btn active" data-period="today" onclick="setPicStatsPeriod_('today')">Hari Ini</button>
-            <button class="tab-btn period-btn" data-period="yesterday" onclick="setPicStatsPeriod_('yesterday')">Kemarin</button>
-            <button class="tab-btn period-btn" data-period="week" onclick="setPicStatsPeriod_('week')">Minggu Ini (7 Hari)</button>
+          </div>
+          <div class="filter-row" style="margin-bottom:14px;">
+            <div class="field"><label>Dari tanggal</label><input type="date" id="picStatsStart"></div>
+            <div class="field"><label>Sampai tanggal</label><input type="date" id="picStatsEnd"></div>
+            <button class="btn-primary" onclick="applyCustomPicStatsRange_()">Terapkan Tanggal</button>
           </div>
           <table><thead><tr><th>Staff ID</th><th>Nama</th><th>Role</th><th>Status</th><th>Valid</th><th>Duplicate</th><th>Error</th><th></th></tr></thead><tbody id="picTable"></tbody></table>
         </div>
@@ -1024,6 +1025,8 @@
   let customOvStart_ = null;
   let customOvEnd_ = null;
   let picStatsPeriod_ = 'today';
+  let customPicStatsStart_ = null;
+  let customPicStatsEnd_ = null;
   const PERIOD_LABELS_ = { '1h': '1 Jam Terakhir', '4h': '4 Jam Terakhir', 'today': 'Hari Ini', 'yesterday': 'Kemarin', 'week': 'Minggu Ini (7 Hari)' };
 
   function setPeriod_(period) {
@@ -1164,7 +1167,7 @@
   }
 
   function loadPicManagementTable_() {
-    callApi('listPicsWithStats', { period: picStatsPeriod_ }).then(function (pics) {
+    callApi('listPicsWithStats', { period: picStatsPeriod_, customStart: customPicStatsStart_, customEnd: customPicStatsEnd_ }).then(function (pics) {
       picListCache = pics;
       document.getElementById('picTable').innerHTML = pics.map(function (p, i) {
         return '<tr><td>' + escapeHtml_(p.PICID) + '</td><td>' + escapeHtml_(p.Nama) + '</td><td>' + escapeHtml_(roleLabel_(p.Role)) + '</td>' +
@@ -1178,7 +1181,19 @@
 
   function setPicStatsPeriod_(period) {
     picStatsPeriod_ = period;
+    customPicStatsStart_ = null; customPicStatsEnd_ = null;
     document.querySelectorAll('#tab-pic .period-btn').forEach(function (b) { b.classList.toggle('active', b.dataset.period === period); });
+    loadPicManagementTable_();
+  }
+
+  function applyCustomPicStatsRange_() {
+    const s = document.getElementById('picStatsStart').value;
+    const e = document.getElementById('picStatsEnd').value;
+    if (!s || !e) { alert('Pilih tanggal mulai dan akhir dulu.'); return; }
+    picStatsPeriod_ = 'custom';
+    customPicStatsStart_ = toSheetDateOv_(s);
+    customPicStatsEnd_ = toSheetDateOv_(e);
+    document.querySelectorAll('#tab-pic .period-btn').forEach(function (b) { b.classList.remove('active'); });
     loadPicManagementTable_();
   }
 
