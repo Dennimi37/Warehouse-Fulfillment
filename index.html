@@ -160,11 +160,8 @@
     <div class="modal" style="max-width:480px; max-height:80vh; overflow-y:auto;">
       <h3 style="margin-top:0;">📋 Riwayat &amp; Hasil Kerja Saya</h3>
       <div class="filter-row" style="margin-bottom:10px;">
-        <button class="tab-btn period-btn" data-period="1h" onclick="setMyHistoryPeriod_('1h')">1 Jam Terakhir</button>
-        <button class="tab-btn period-btn" data-period="4h" onclick="setMyHistoryPeriod_('4h')">4 Jam Terakhir</button>
         <button class="tab-btn period-btn active" data-period="today" onclick="setMyHistoryPeriod_('today')">Hari Ini</button>
         <button class="tab-btn period-btn" data-period="yesterday" onclick="setMyHistoryPeriod_('yesterday')">Kemarin</button>
-        <button class="tab-btn period-btn" data-period="week" onclick="setMyHistoryPeriod_('week')">Minggu Ini</button>
       </div>
       <div class="stats-grid" style="margin-bottom:14px;">
         <div class="stat-card valid"><div class="n" id="myRepValid">0</div><div class="l">VALID</div></div>
@@ -186,6 +183,7 @@
       <div class="field"><label>Inbound</label><input type="number" id="drPicInbound" inputmode="numeric" placeholder="Contoh: 50"></div>
       <div class="field"><label>Preparation</label><input type="number" id="drPicPreparation" inputmode="numeric" placeholder="Contoh: 30"></div>
       <div class="field"><label>Lainnya (opsional)</label><input type="number" id="drPicLainnya" inputmode="numeric" placeholder="Contoh: 10"></div>
+      <div class="field"><label>Keterangan (opsional, maks 20 karakter)</label><input type="text" id="drPicKeterangan" maxlength="20" placeholder="Contoh: lembur karena retur"></div>
       <div class="field"><label>Jam Lembur (opsional)</label><input type="number" id="drPicLembur" inputmode="decimal" step="0.5" placeholder="Contoh: 2"></div>
       <div class="modal-actions">
         <button style="background:var(--panel-2); color:var(--text); border:1px solid var(--border);" onclick="closeDailyReportPic_()">Tutup</button>
@@ -193,7 +191,7 @@
       </div>
       <p id="drPicMsg" style="font-size:13px; min-height:18px;"></p>
       <h4 style="margin-bottom:8px;">Riwayat Laporan Saya</h4>
-      <table><thead><tr><th>Tanggal</th><th>Packing</th><th>Inbound</th><th>Prep.</th><th>Lainnya</th><th>Lembur</th></tr></thead><tbody id="drPicHistoryTable"></tbody></table>
+      <table><thead><tr><th>Tanggal</th><th>Packing</th><th>Inbound</th><th>Prep.</th><th>Lainnya</th><th>Ket.</th><th>Lembur</th></tr></thead><tbody id="drPicHistoryTable"></tbody></table>
     </div>
   </div>
 
@@ -238,11 +236,8 @@
     <div class="modal" style="max-width:480px; max-height:80vh; overflow-y:auto;">
       <h3 style="margin-top:0;">📋 Riwayat &amp; Hasil Kerja Saya</h3>
       <div class="filter-row" style="margin-bottom:10px;">
-        <button class="tab-btn period-btn" data-period="1h" onclick="setCsHistoryPeriod_('1h')">1 Jam Terakhir</button>
-        <button class="tab-btn period-btn" data-period="4h" onclick="setCsHistoryPeriod_('4h')">4 Jam Terakhir</button>
         <button class="tab-btn period-btn active" data-period="today" onclick="setCsHistoryPeriod_('today')">Hari Ini</button>
         <button class="tab-btn period-btn" data-period="yesterday" onclick="setCsHistoryPeriod_('yesterday')">Kemarin</button>
-        <button class="tab-btn period-btn" data-period="week" onclick="setCsHistoryPeriod_('week')">Minggu Ini</button>
       </div>
       <div class="stats-grid" style="grid-template-columns:repeat(3,1fr); margin-bottom:14px;">
         <div class="stat-card valid"><div class="n" id="csRepSession">0</div><div class="l">TOTAL SESSION</div></div>
@@ -262,6 +257,7 @@
       <div class="field"><label>Sesi</label><input type="number" id="drCsSession" inputmode="numeric" placeholder="Contoh: 3"></div>
       <div class="field"><label>Qty Cetak</label><input type="number" id="drCsQty" inputmode="numeric" placeholder="Contoh: 150"></div>
       <div class="field"><label>Lainnya (opsional)</label><input type="number" id="drCsLainnya" inputmode="numeric" placeholder="Contoh: 10"></div>
+      <div class="field"><label>Keterangan (opsional, maks 20 karakter)</label><input type="text" id="drCsKeterangan" maxlength="20" placeholder="Contoh: koneksi lambat"></div>
       <div class="field"><label>Jam Lembur (opsional)</label><input type="number" id="drCsLembur" inputmode="decimal" step="0.5" placeholder="Contoh: 2"></div>
       <div class="modal-actions">
         <button style="background:var(--panel-2); color:var(--text); border:1px solid var(--border);" onclick="closeDailyReportCs_()">Tutup</button>
@@ -269,7 +265,7 @@
       </div>
       <p id="drCsMsg" style="font-size:13px; min-height:18px;"></p>
       <h4 style="margin-bottom:8px;">Riwayat Laporan Saya</h4>
-      <table><thead><tr><th>Tanggal</th><th>Sesi</th><th>Qty</th><th>Lainnya</th><th>Lembur</th></tr></thead><tbody id="drCsHistoryTable"></tbody></table>
+      <table><thead><tr><th>Tanggal</th><th>Sesi</th><th>Qty</th><th>Lainnya</th><th>Ket.</th><th>Lembur</th></tr></thead><tbody id="drCsHistoryTable"></tbody></table>
     </div>
   </div>
 
@@ -299,6 +295,7 @@
       <div class="tab-panel active" id="tab-overview">
         <div class="filter-row" style="margin-bottom:10px;">
           <button class="tab-btn period-btn" data-period="2h" onclick="setPeriod_('2h')">2 Jam Terakhir</button>
+          <button class="tab-btn period-btn" data-period="4h" onclick="setPeriod_('4h')">4 Jam Terakhir</button>
           <button class="tab-btn period-btn active" data-period="today" onclick="setPeriod_('today')">Hari Ini</button>
           <button class="tab-btn period-btn" data-period="yesterday" onclick="setPeriod_('yesterday')">Kemarin</button>
         </div>
@@ -403,7 +400,7 @@
             <button class="btn-primary" onclick="loadDailyReportsList_()">Terapkan</button>
             <button class="btn-secondary" onclick="clearDailyReportsFilter_()">Tampilkan Semua</button>
           </div>
-          <table><thead><tr><th>Tanggal</th><th>Nama</th><th>Role</th><th>Packing</th><th>Inbound</th><th>Preparation</th><th>Session</th><th>Qty Cetak</th><th>Lainnya</th><th>Lembur</th></tr></thead><tbody id="dailyReportsTable"></tbody></table>
+          <table><thead><tr><th>Tanggal</th><th>Nama</th><th>Role</th><th>Packing</th><th>Inbound</th><th>Preparation</th><th>Session</th><th>Qty Cetak</th><th>Lainnya</th><th>Ket.</th><th>Lembur</th></tr></thead><tbody id="dailyReportsTable"></tbody></table>
         </div>
       </div>
 
@@ -830,6 +827,7 @@
     const inbound = document.getElementById('drPicInbound').value;
     const preparation = document.getElementById('drPicPreparation').value;
     const lainnya = document.getElementById('drPicLainnya').value;
+    const keterangan = document.getElementById('drPicKeterangan').value;
     const lembur = document.getElementById('drPicLembur').value;
     if (!dateVal || packing === '' || inbound === '' || preparation === '') {
       document.getElementById('drPicMsg').textContent = 'Tanggal, Packing, Inbound, dan Preparation wajib diisi.';
@@ -840,7 +838,7 @@
     document.getElementById('drPicMsg').textContent = 'Menyimpan...';
     document.getElementById('drPicMsg').style.color = 'var(--muted)';
 
-    callApi('submitDailyReport', { picId: CURRENT_USER.picId, picName: CURRENT_USER.name, role: CURRENT_USER.role, date: dateStr, packing: packing, inbound: inbound, preparation: preparation, session: '', qtyCetak: '', lainnya: lainnya, lembur: lembur })
+    callApi('submitDailyReport', { picId: CURRENT_USER.picId, picName: CURRENT_USER.name, role: CURRENT_USER.role, date: dateStr, packing: packing, inbound: inbound, preparation: preparation, session: '', qtyCetak: '', lainnya: lainnya, keterangan: keterangan, lembur: lembur })
       .then(function (res) {
         if (!res || !res.success) {
           document.getElementById('drPicMsg').textContent = 'Gagal: ' + (res && res.message ? res.message : 'tidak dikenal server');
@@ -858,13 +856,13 @@
   }
 
   function loadMyDailyReportsPic_() {
-    document.getElementById('drPicHistoryTable').innerHTML = '<tr><td colspan="6" style="color:var(--muted)">Memuat...</td></tr>';
+    document.getElementById('drPicHistoryTable').innerHTML = '<tr><td colspan="7" style="color:var(--muted)">Memuat...</td></tr>';
     callApi('getMyDailyReports', { picId: CURRENT_USER.picId, limit: 30 }).then(function (rows) {
       document.getElementById('drPicHistoryTable').innerHTML = rows.map(function (r) {
-        return '<tr><td>' + r.Date + '</td><td>' + r.Packing + '</td><td>' + r.Inbound + '</td><td>' + r.Preparation + '</td><td>' + (r.Lainnya || '-') + '</td><td>' + (r.Lembur || '-') + '</td></tr>';
-      }).join('') || '<tr><td colspan="6" style="color:var(--muted)">Belum ada laporan</td></tr>';
+        return '<tr><td>' + r.Date + '</td><td>' + r.Packing + '</td><td>' + r.Inbound + '</td><td>' + r.Preparation + '</td><td>' + (r.Lainnya || '-') + '</td><td>' + escapeHtml_(r.Keterangan || '-') + '</td><td>' + (r.Lembur || '-') + '</td></tr>';
+      }).join('') || '<tr><td colspan="7" style="color:var(--muted)">Belum ada laporan</td></tr>';
     }).catch(function (e) {
-      document.getElementById('drPicHistoryTable').innerHTML = '<tr><td colspan="6" style="color:var(--red)">Gagal memuat: ' + e + '</td></tr>';
+      document.getElementById('drPicHistoryTable').innerHTML = '<tr><td colspan="7" style="color:var(--red)">Gagal memuat: ' + e + '</td></tr>';
     });
   }
 
@@ -970,6 +968,7 @@
     const session = document.getElementById('drCsSession').value;
     const qty = document.getElementById('drCsQty').value;
     const lainnya = document.getElementById('drCsLainnya').value;
+    const keterangan = document.getElementById('drCsKeterangan').value;
     const lembur = document.getElementById('drCsLembur').value;
     if (!dateVal || session === '' || qty === '') {
       document.getElementById('drCsMsg').textContent = 'Tanggal, Sesi, dan Qty Cetak wajib diisi.';
@@ -980,7 +979,7 @@
     document.getElementById('drCsMsg').textContent = 'Menyimpan...';
     document.getElementById('drCsMsg').style.color = 'var(--muted)';
 
-    callApi('submitDailyReport', { picId: CURRENT_USER.picId, picName: CURRENT_USER.name, role: CURRENT_USER.role, date: dateStr, packing: '', inbound: '', preparation: '', session: session, qtyCetak: qty, lainnya: lainnya, lembur: lembur })
+    callApi('submitDailyReport', { picId: CURRENT_USER.picId, picName: CURRENT_USER.name, role: CURRENT_USER.role, date: dateStr, packing: '', inbound: '', preparation: '', session: session, qtyCetak: qty, lainnya: lainnya, keterangan: keterangan, lembur: lembur })
       .then(function (res) {
         if (!res || !res.success) {
           document.getElementById('drCsMsg').textContent = 'Gagal: ' + (res && res.message ? res.message : 'tidak dikenal server');
@@ -998,13 +997,13 @@
   }
 
   function loadMyDailyReportsCs_() {
-    document.getElementById('drCsHistoryTable').innerHTML = '<tr><td colspan="5" style="color:var(--muted)">Memuat...</td></tr>';
+    document.getElementById('drCsHistoryTable').innerHTML = '<tr><td colspan="6" style="color:var(--muted)">Memuat...</td></tr>';
     callApi('getMyDailyReports', { picId: CURRENT_USER.picId, limit: 30 }).then(function (rows) {
       document.getElementById('drCsHistoryTable').innerHTML = rows.map(function (r) {
-        return '<tr><td>' + r.Date + '</td><td>' + r.Session + '</td><td>' + r.QtyCetak + '</td><td>' + (r.Lainnya || '-') + '</td><td>' + (r.Lembur || '-') + '</td></tr>';
-      }).join('') || '<tr><td colspan="5" style="color:var(--muted)">Belum ada laporan</td></tr>';
+        return '<tr><td>' + r.Date + '</td><td>' + r.Session + '</td><td>' + r.QtyCetak + '</td><td>' + (r.Lainnya || '-') + '</td><td>' + escapeHtml_(r.Keterangan || '-') + '</td><td>' + (r.Lembur || '-') + '</td></tr>';
+      }).join('') || '<tr><td colspan="6" style="color:var(--muted)">Belum ada laporan</td></tr>';
     }).catch(function (e) {
-      document.getElementById('drCsHistoryTable').innerHTML = '<tr><td colspan="5" style="color:var(--red)">Gagal memuat: ' + e + '</td></tr>';
+      document.getElementById('drCsHistoryTable').innerHTML = '<tr><td colspan="6" style="color:var(--red)">Gagal memuat: ' + e + '</td></tr>';
     });
   }
 
@@ -1027,7 +1026,7 @@
   let picStatsPeriod_ = 'today';
   let customPicStatsStart_ = null;
   let customPicStatsEnd_ = null;
-  const PERIOD_LABELS_ = { '1h': '1 Jam Terakhir', '4h': '4 Jam Terakhir', 'today': 'Hari Ini', 'yesterday': 'Kemarin', 'week': 'Minggu Ini (7 Hari)' };
+  const PERIOD_LABELS_ = { '1h': '1 Jam Terakhir', '2h': '2 Jam Terakhir', '4h': '4 Jam Terakhir', 'today': 'Hari Ini', 'yesterday': 'Kemarin', 'week': 'Minggu Ini (7 Hari)' };
 
   function setPeriod_(period) {
     currentPeriod_ = period;
@@ -1323,15 +1322,15 @@
   }
 
   function loadDailyReportsRange_(startDate, endDate) {
-    document.getElementById('dailyReportsTable').innerHTML = '<tr><td colspan="10" style="color:var(--muted)">Memuat...</td></tr>';
+    document.getElementById('dailyReportsTable').innerHTML = '<tr><td colspan="11" style="color:var(--muted)">Memuat...</td></tr>';
     callApi('getDailyReportsList', { startDate: startDate, endDate: endDate }).then(function (rows) {
       document.getElementById('dailyReportsTable').innerHTML = rows.map(function (r) {
         return '<tr><td>' + r.Date + '</td><td>' + escapeHtml_(r.PICName) + '</td><td>' + escapeHtml_(roleLabel_(r.Role)) + '</td>' +
           '<td>' + (r.Packing || '') + '</td><td>' + (r.Inbound || '') + '</td><td>' + (r.Preparation || '') + '</td>' +
-          '<td>' + (r.Session || '') + '</td><td>' + (r.QtyCetak || '') + '</td><td>' + (r.Lainnya || '') + '</td><td>' + (r.Lembur || '') + '</td></tr>';
-      }).join('') || '<tr><td colspan="10" style="color:var(--muted)">Belum ada laporan</td></tr>';
+          '<td>' + (r.Session || '') + '</td><td>' + (r.QtyCetak || '') + '</td><td>' + (r.Lainnya || '') + '</td><td>' + escapeHtml_(r.Keterangan || '') + '</td><td>' + (r.Lembur || '') + '</td></tr>';
+      }).join('') || '<tr><td colspan="11" style="color:var(--muted)">Belum ada laporan</td></tr>';
     }).catch(function (err) {
-      document.getElementById('dailyReportsTable').innerHTML = '<tr><td colspan="10" style="color:var(--red)">Gagal memuat: ' + err + '</td></tr>';
+      document.getElementById('dailyReportsTable').innerHTML = '<tr><td colspan="11" style="color:var(--red)">Gagal memuat: ' + err + '</td></tr>';
     });
   }
 
