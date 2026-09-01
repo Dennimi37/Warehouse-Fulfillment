@@ -114,7 +114,7 @@
       <input id="loginPin" placeholder="PIN" type="password" inputmode="numeric" autocomplete="off">
       <button id="loginBtn" onclick="doLogin()">MASUK</button>
       <div class="login-error" id="loginError"></div>
-      <div class="login-note">Halo Guys Semangat yah.</div>
+      <div class="login-note">Halaman ini khusus PIC untuk scan pakai kamera HP.</div>
     </div>
   </div>
 
@@ -216,6 +216,10 @@
         <input id="csQtyInput" type="number" inputmode="numeric" min="0" placeholder="Contoh: 25" style="font-size:22px; text-align:center; padding:16px;">
       </div>
       <div class="scan-box">
+        <label>LAINNYA</label>
+        <input id="csLainnyaInput" type="number" inputmode="numeric" min="0" placeholder="Contoh: 5" style="font-size:22px; text-align:center; padding:16px;">
+      </div>
+      <div class="scan-box">
         <label>CATATAN (OPSIONAL)</label>
         <input id="csNotesInput" placeholder="Catatan tambahan...">
       </div>
@@ -239,12 +243,13 @@
         <button class="tab-btn period-btn active" data-period="today" onclick="setCsHistoryPeriod_('today')">Hari Ini</button>
         <button class="tab-btn period-btn" data-period="yesterday" onclick="setCsHistoryPeriod_('yesterday')">Kemarin</button>
       </div>
-      <div class="stats-grid" style="grid-template-columns:repeat(3,1fr); margin-bottom:14px;">
+      <div class="stats-grid" style="grid-template-columns:repeat(4,1fr); margin-bottom:14px;">
         <div class="stat-card valid"><div class="n" id="csRepSession">0</div><div class="l">TOTAL SESSION</div></div>
         <div class="stat-card total"><div class="n" id="csRepQty">0</div><div class="l">TOTAL QTY CETAK</div></div>
+        <div class="stat-card total"><div class="n" id="csRepLainnya">0</div><div class="l">TOTAL LAINNYA</div></div>
         <div class="stat-card duplicate"><div class="n" id="csRepCount">0</div><div class="l">JUMLAH ENTRI</div></div>
       </div>
-      <table><thead><tr><th>Session</th><th>Qty</th><th>Tanggal</th><th>Jam</th><th>Catatan</th></tr></thead><tbody id="csHistoryTable"></tbody></table>
+      <table><thead><tr><th>Session</th><th>Qty</th><th>Lainnya</th><th>Tanggal</th><th>Jam</th><th>Catatan</th></tr></thead><tbody id="csHistoryTable"></tbody></table>
       <div class="modal-actions"><button style="width:100%; background:var(--panel-2); color:var(--text); border:1px solid var(--border);" onclick="closeMyCsHistory_()">Tutup</button></div>
     </div>
   </div>
@@ -269,6 +274,61 @@
     </div>
   </div>
 
+  <div id="returnView" class="hidden">
+    <div class="topbar">
+      <div>
+        <div class="title">WAREHOUSE ACTIVITY AND REPORT</div>
+        <div class="who" id="returnWho"></div>
+      </div>
+      <div class="actions">
+        <span id="returnNetBadge" class="badge-online">ONLINE</span>
+        <button class="icon-btn" onclick="toggleReturnSound_()" id="returnSoundBtn">🔊</button>
+        <button class="icon-btn" onclick="doLogout()">Keluar</button>
+      </div>
+    </div>
+
+    <div style="max-width:480px; margin:0 auto; padding:16px;">
+      <div class="scan-box">
+        <label>SCAN RESI RETURN</label>
+        <input id="returnScanInput" autocomplete="off" autofocus placeholder="Tembak barcode / ketik manual...">
+      </div>
+
+      <div class="status-panel" id="returnStatusPanel">
+        <div class="icon" id="returnStatusIcon">⚪</div>
+        <div class="msg" id="returnStatusMsg">SIAP SCAN</div>
+        <div class="last-receipt" id="returnLastReceipt"></div>
+      </div>
+
+      <div class="stats-grid">
+        <div class="stat-card total"><div class="n" id="returnStatTotal">0</div><div class="l">TOTAL</div></div>
+        <div class="stat-card valid"><div class="n" id="returnStatValid">0</div><div class="l">VALID</div></div>
+        <div class="stat-card duplicate"><div class="n" id="returnStatDup">0</div><div class="l">DUPLICATE</div></div>
+        <div class="stat-card error"><div class="n" id="returnStatErr">0</div><div class="l">ERROR</div></div>
+      </div>
+
+      <div class="queue-note" id="returnQueueNote"></div>
+
+      <button style="width:100%; margin-top:14px; background:var(--panel-2); color:var(--text); border:1px solid var(--border);" onclick="openReturnHistory_()">📋 Riwayat Scan Saya</button>
+    </div>
+  </div>
+
+  <div class="modal-backdrop hidden" id="returnHistoryModalBackdrop">
+    <div class="modal" style="max-width:480px; max-height:80vh; overflow-y:auto;">
+      <h3 style="margin-top:0;">📋 Riwayat Scan Saya</h3>
+      <div class="filter-row" style="margin-bottom:10px;">
+        <button class="tab-btn period-btn active" data-period="today" onclick="setReturnHistoryPeriod_('today')">Hari Ini</button>
+        <button class="tab-btn period-btn" data-period="yesterday" onclick="setReturnHistoryPeriod_('yesterday')">Kemarin</button>
+      </div>
+      <div class="stats-grid" style="grid-template-columns:repeat(3,1fr); margin-bottom:14px;">
+        <div class="stat-card valid"><div class="n" id="returnRepValid">0</div><div class="l">VALID</div></div>
+        <div class="stat-card duplicate"><div class="n" id="returnRepDup">0</div><div class="l">DUPLICATE</div></div>
+        <div class="stat-card total"><div class="n" id="returnRepTotal">0</div><div class="l">TOTAL</div></div>
+      </div>
+      <table><thead><tr><th>Resi</th><th>Tanggal</th><th>Jam</th><th>Status</th></tr></thead><tbody id="returnHistoryTable"></tbody></table>
+      <div class="modal-actions"><button style="width:100%; background:var(--panel-2); color:var(--text); border:1px solid var(--border);" onclick="closeReturnHistory_()">Tutup</button></div>
+    </div>
+  </div>
+
   <div id="dashboardView" class="hidden">
     <div class="topbar">
       <div>
@@ -288,6 +348,7 @@
         <button class="tab-btn" data-tab="history" onclick="switchTab('history')">Histori &amp; Filter</button>
         <button class="tab-btn" data-tab="pic" onclick="switchTab('pic')">Kelola Staff</button>
         <button class="tab-btn" data-tab="cs" onclick="switchTab('cs')">CS Activity</button>
+        <button class="tab-btn" data-tab="return" onclick="switchTab('return')">Return Activity</button>
         <button class="tab-btn" data-tab="daily" onclick="switchTab('daily')">Laporan Harian</button>
         <button class="tab-btn" data-tab="audit" onclick="switchTab('audit')">Audit Log</button>
       </div>
@@ -383,7 +444,23 @@
         <div class="overview-grid" id="csOvGrid"></div>
         <div class="panel-box">
           <h3 style="margin-top:0;" id="csPerPersonTitle">Klasemen CS — Hari Ini</h3>
-          <table><thead><tr><th>#</th><th>Nama</th><th>Session</th><th>Qty Cetak</th><th>Jumlah Entri</th></tr></thead><tbody id="csPerPersonTable"></tbody></table>
+          <table><thead><tr><th>#</th><th>Nama</th><th>Session</th><th>Qty Cetak</th><th>Lainnya</th><th>Jumlah Entri</th></tr></thead><tbody id="csPerPersonTable"></tbody></table>
+        </div>
+      </div>
+
+      <div class="tab-panel" id="tab-return">
+        <div class="filter-row" style="margin-bottom:10px;">
+          <button class="tab-btn period-btn active" data-period="today" onclick="setReturnPeriod_('today')">Hari Ini</button>
+        </div>
+        <div class="filter-row" style="margin-bottom:14px;">
+          <div class="field"><label>Dari tanggal</label><input type="date" id="returnStart"></div>
+          <div class="field"><label>Sampai tanggal</label><input type="date" id="returnEnd"></div>
+          <button class="btn-primary" onclick="applyCustomReturnRange_()">Terapkan Tanggal</button>
+        </div>
+        <div class="overview-grid" id="returnOvGrid"></div>
+        <div class="panel-box">
+          <h3 style="margin-top:0;" id="returnPerPersonTitle">Klasemen Return — Hari Ini</h3>
+          <table><thead><tr><th>#</th><th>Nama</th><th>Valid</th><th>Duplicate</th><th>Error</th><th>Total</th></tr></thead><tbody id="returnPerPersonTable"></tbody></table>
         </div>
       </div>
 
@@ -418,7 +495,7 @@
       <div class="field"><label>Staff ID</label><input id="mPicId"></div>
       <div class="field"><label>Nama</label><input id="mPicName"></div>
       <div class="field"><label>PIN</label><input id="mPicPin" inputmode="numeric"></div>
-      <div class="field"><label>Role</label><select id="mPicRole"><option value="PIC">Staff</option><option value="CS">CS</option><option value="Supervisor">Supervisor</option></select></div>
+      <div class="field"><label>Role</label><select id="mPicRole"><option value="PIC">Staff</option><option value="CS">CS</option><option value="RETURN">Return</option><option value="Supervisor">Supervisor</option></select></div>
       <div class="field"><label>Status</label><select id="mPicStatus"><option value="Aktif">Aktif</option><option value="Nonaktif">Nonaktif</option></select></div>
       <div class="modal-actions">
         <button class="btn-secondary" onclick="closePicModal()">Batal</button>
@@ -532,6 +609,9 @@
     } else if (CURRENT_USER.role === 'CS') {
       document.getElementById('csView').classList.remove('hidden');
       initCsView();
+    } else if (CURRENT_USER.role === 'RETURN') {
+      document.getElementById('returnView').classList.remove('hidden');
+      initReturnView();
     } else {
       document.getElementById('dashboardView').classList.remove('hidden');
       initDashboardView();
@@ -878,17 +958,18 @@
   function submitCsEntry_() {
     const session = document.getElementById('csSessionInput').value;
     const qty = document.getElementById('csQtyInput').value;
+    const lainnya = document.getElementById('csLainnyaInput').value;
     const notes = document.getElementById('csNotesInput').value.trim();
 
-    if (session === '' || qty === '') {
-      renderCsStatus_('invalid', '🔴', 'Session dan Qty Cetak wajib diisi');
+    if (session === '' || qty === '' || lainnya === '') {
+      renderCsStatus_('invalid', '🔴', 'Session, Qty Cetak, dan Lainnya wajib diisi');
       return;
     }
 
     document.getElementById('csSubmitBtn').disabled = true;
     document.getElementById('csSubmitBtn').textContent = 'MENYIMPAN...';
 
-    callApi('submitCsActivity', { picId: CURRENT_USER.picId, picName: CURRENT_USER.name, session: session, qtyCetak: qty, notes: notes })
+    callApi('submitCsActivity', { picId: CURRENT_USER.picId, picName: CURRENT_USER.name, session: session, qtyCetak: qty, lainnya: lainnya, notes: notes })
       .then(function (res) {
         document.getElementById('csSubmitBtn').disabled = false;
         document.getElementById('csSubmitBtn').textContent = 'SIMPAN';
@@ -896,9 +977,10 @@
           renderCsStatus_('error', '🔴', 'Gagal menyimpan: ' + (res && res.message ? res.message : 'Server tidak mengenali aksi ini — kemungkinan Apps Script belum di-deploy ulang dengan kode terbaru.'));
           return;
         }
-        renderCsStatus_('valid', '🟢', 'Tersimpan! Session: ' + session + ', Qty Cetak: ' + qty);
+        renderCsStatus_('valid', '🟢', 'Tersimpan! Session: ' + session + ', Qty Cetak: ' + qty + ', Lainnya: ' + lainnya);
         document.getElementById('csSessionInput').value = '';
         document.getElementById('csQtyInput').value = '';
+        document.getElementById('csLainnyaInput').value = '';
         document.getElementById('csNotesInput').value = '';
         document.getElementById('csSessionInput').focus();
       })
@@ -928,25 +1010,247 @@
   }
 
   function loadMyCsHistoryData_() {
-    document.getElementById('csHistoryTable').innerHTML = '<tr><td colspan="5" style="color:var(--muted)">Memuat...</td></tr>';
+    document.getElementById('csHistoryTable').innerHTML = '<tr><td colspan="6" style="color:var(--muted)">Memuat...</td></tr>';
     callApi('getMyCsReport', { picId: CURRENT_USER.picId, period: csHistoryPeriod_ }).then(function (rep) {
       if (!rep || !rep.items) {
-        document.getElementById('csHistoryTable').innerHTML = '<tr><td colspan="5" style="color:var(--red)">Server tidak mengenali data ini — kemungkinan Apps Script belum di-deploy ulang dengan kode terbaru.</td></tr>';
+        document.getElementById('csHistoryTable').innerHTML = '<tr><td colspan="6" style="color:var(--red)">Server tidak mengenali data ini — kemungkinan Apps Script belum di-deploy ulang dengan kode terbaru.</td></tr>';
         return;
       }
       document.getElementById('csRepSession').textContent = rep.totalSession;
       document.getElementById('csRepQty').textContent = rep.totalQtyCetak;
+      document.getElementById('csRepLainnya').textContent = rep.totalLainnya;
       document.getElementById('csRepCount').textContent = rep.entryCount;
       document.getElementById('csHistoryTable').innerHTML = rep.items.map(function (r) {
-        return '<tr><td>' + r.session + '</td><td>' + r.qtyCetak + '</td><td>' + r.date + '</td><td>' + r.time + '</td><td>' + escapeHtml_(r.notes) + '</td></tr>';
-      }).join('') || '<tr><td colspan="5" style="color:var(--muted)">Belum ada entri pada periode ini</td></tr>';
+        return '<tr><td>' + r.session + '</td><td>' + r.qtyCetak + '</td><td>' + (r.lainnya || 0) + '</td><td>' + r.date + '</td><td>' + r.time + '</td><td>' + escapeHtml_(r.notes) + '</td></tr>';
+      }).join('') || '<tr><td colspan="6" style="color:var(--muted)">Belum ada entri pada periode ini</td></tr>';
     }).catch(function (e) {
-      document.getElementById('csHistoryTable').innerHTML = '<tr><td colspan="5" style="color:var(--red)">Gagal memuat: ' + e + '</td></tr>';
+      document.getElementById('csHistoryTable').innerHTML = '<tr><td colspan="6" style="color:var(--red)">Gagal memuat: ' + e + '</td></tr>';
     });
   }
 
   function closeMyCsHistory_() {
     document.getElementById('csHistoryModalBackdrop').classList.add('hidden');
+  }
+
+  // ================================================================
+  // SCAN RETURN — sama pola cepatnya dengan Staff, tapi datanya masuk ke
+  // sheet RETURN_SCAN yang terpisah total dari TRANSACTIONS.
+  // ================================================================
+
+  let returnKnownReceipts_ = new Set();
+  let returnPendingQueue_ = [];
+  let returnInFlight_ = false;
+  let returnCounters_ = { valid: 0, duplicate: 0, error: 0 };
+  let returnSoundOn_ = true;
+  let returnAudioCtx_ = null;
+  let returnHistoryPeriod_ = 'today';
+
+  const RETURN_BATCH_INTERVAL_MS = 800;
+  const RETURN_BATCH_MAX_SIZE = 25;
+  const RETURN_OFFLINE_KEY = 'wpc_return_offline_queue_mobile';
+
+  function initReturnView() {
+    document.getElementById('returnWho').textContent = 'Return: ' + CURRENT_USER.name + ' (' + CURRENT_USER.picId + ')';
+
+    setupReturnScanInput_();
+    loadReturnKnownReceipts_();
+    restoreReturnOfflineQueue_();
+
+    setInterval(flushReturnBatch_, RETURN_BATCH_INTERVAL_MS);
+    setInterval(refreshReturnNetBadge_, 3000);
+    window.addEventListener('online', refreshReturnNetBadge_);
+    window.addEventListener('offline', refreshReturnNetBadge_);
+    refreshReturnNetBadge_();
+  }
+
+  function setupReturnScanInput_() {
+    const input = document.getElementById('returnScanInput');
+    input.value = '';
+    input.focus();
+    input.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        const raw = input.value;
+        input.value = '';
+        handleReturnScan_(raw);
+      }
+    });
+    document.addEventListener('click', function () { setTimeout(function () { input.focus(); }, 30); });
+    setInterval(function () { if (document.activeElement !== input) input.focus(); }, 1500);
+  }
+
+  function handleReturnScan_(raw) {
+    const receipt = String(raw || '').trim();
+
+    if (!receipt) {
+      renderReturnStatus_('invalid', '🔴', 'RESI KOSONG / TIDAK VALID', '');
+      playReturnSound_('invalid');
+      returnCounters_.error++;
+      updateReturnCounterUI_();
+      return;
+    }
+
+    if (returnKnownReceipts_.has(receipt)) {
+      renderReturnStatus_('duplicate', '🟡', 'DUPLICATE — SUDAH PERNAH DISCAN', receipt);
+      playReturnSound_('duplicate');
+      returnCounters_.duplicate++;
+      updateReturnCounterUI_();
+      queueReturnForServer_({ clientId: returnCid_(), receipt: receipt });
+      return;
+    }
+
+    returnKnownReceipts_.add(receipt);
+    renderReturnStatus_('valid', '🟢', 'SCAN RETURN BERHASIL', receipt);
+    playReturnSound_('valid');
+    returnCounters_.valid++;
+    updateReturnCounterUI_();
+    queueReturnForServer_({ clientId: returnCid_(), receipt: receipt });
+  }
+
+  function returnCid_() { return 'r' + Date.now() + Math.random().toString(36).slice(2, 7); }
+
+  function renderReturnStatus_(cls, icon, msg, receipt) {
+    const panel = document.getElementById('returnStatusPanel');
+    panel.className = 'status-panel ' + cls;
+    document.getElementById('returnStatusIcon').textContent = icon;
+    document.getElementById('returnStatusMsg').textContent = msg;
+    document.getElementById('returnLastReceipt').textContent = receipt ? (receipt + '  •  ' + new Date().toLocaleTimeString('id-ID')) : '';
+  }
+
+  function updateReturnCounterUI_() {
+    document.getElementById('returnStatValid').textContent = returnCounters_.valid;
+    document.getElementById('returnStatDup').textContent = returnCounters_.duplicate;
+    document.getElementById('returnStatErr').textContent = returnCounters_.error;
+    document.getElementById('returnStatTotal').textContent = returnCounters_.valid + returnCounters_.duplicate + returnCounters_.error;
+  }
+
+  function queueReturnForServer_(item) {
+    returnPendingQueue_.push(item);
+    saveReturnOfflineQueueSnapshot_();
+    if (returnPendingQueue_.length >= RETURN_BATCH_MAX_SIZE) flushReturnBatch_();
+  }
+
+  function flushReturnBatch_() {
+    if (returnInFlight_ || returnPendingQueue_.length === 0) return;
+    if (!navigator.onLine) { updateReturnQueueNote_(); return; }
+
+    const batch = returnPendingQueue_.splice(0, RETURN_BATCH_MAX_SIZE);
+    returnInFlight_ = true;
+    updateReturnQueueNote_();
+
+    callApi('batchSubmitReturnScans', { picId: CURRENT_USER.picId, picName: CURRENT_USER.name, items: batch })
+      .then(function (results) {
+        returnInFlight_ = false;
+        applyReturnServerCorrections_(results);
+        saveReturnOfflineQueueSnapshot_();
+        updateReturnQueueNote_();
+      })
+      .catch(function () {
+        returnInFlight_ = false;
+        returnPendingQueue_ = batch.concat(returnPendingQueue_);
+        saveReturnOfflineQueueSnapshot_();
+        updateReturnQueueNote_();
+      });
+  }
+
+  function applyReturnServerCorrections_(results) {
+    (results || []).forEach(function (r) {
+      if (r.status === 'DUPLICATE') {
+        returnCounters_.valid = Math.max(0, returnCounters_.valid - 1);
+        returnCounters_.duplicate++;
+        updateReturnCounterUI_();
+      } else if (r.status === 'ERROR') {
+        returnCounters_.error++;
+        returnCounters_.valid = Math.max(0, returnCounters_.valid - 1);
+        updateReturnCounterUI_();
+      }
+    });
+  }
+
+  function saveReturnOfflineQueueSnapshot_() {
+    try { localStorage.setItem(RETURN_OFFLINE_KEY, JSON.stringify(returnPendingQueue_)); } catch (e) {}
+  }
+  function restoreReturnOfflineQueue_() {
+    try {
+      const saved = localStorage.getItem(RETURN_OFFLINE_KEY);
+      if (saved) { const arr = JSON.parse(saved); if (Array.isArray(arr) && arr.length) returnPendingQueue_ = arr.concat(returnPendingQueue_); }
+    } catch (e) {}
+  }
+  function updateReturnQueueNote_() {
+    const note = document.getElementById('returnQueueNote');
+    if (!note) return;
+    if (!navigator.onLine) note.textContent = '📴 OFFLINE — ' + returnPendingQueue_.length + ' scan tersimpan, akan dikirim otomatis saat online.';
+    else if (returnPendingQueue_.length > 0 || returnInFlight_) note.textContent = 'Menyinkronkan... (' + returnPendingQueue_.length + ' sisa antrean)';
+    else note.textContent = '';
+  }
+  function refreshReturnNetBadge_() {
+    const badge = document.getElementById('returnNetBadge');
+    if (!badge) return;
+    if (!navigator.onLine) { badge.className = 'badge-offline'; badge.textContent = 'OFFLINE'; }
+    else if (returnPendingQueue_.length > 0 || returnInFlight_) { badge.className = 'badge-syncing'; badge.textContent = 'SYNCING'; }
+    else { badge.className = 'badge-online'; badge.textContent = 'ONLINE'; }
+    updateReturnQueueNote_();
+  }
+
+  function loadReturnKnownReceipts_() {
+    callApi('getKnownReturnReceipts', {}).then(function (list) {
+      returnKnownReceipts_ = new Set(list || []);
+    }).catch(function () {});
+  }
+
+  // ---------------- SOUND FEEDBACK ----------------
+  function ensureReturnAudio_() { if (!returnAudioCtx_) returnAudioCtx_ = new (window.AudioContext || window.webkitAudioContext)(); return returnAudioCtx_; }
+  function returnBeep_(freq, durationMs, delayMs) {
+    if (!returnSoundOn_) return;
+    const ctx = ensureReturnAudio_();
+    const t0 = ctx.currentTime + (delayMs || 0) / 1000;
+    const osc = ctx.createOscillator(); const gain = ctx.createGain();
+    osc.frequency.value = freq; osc.type = 'square';
+    gain.gain.setValueAtTime(0.6, t0);
+    gain.gain.exponentialRampToValueAtTime(0.001, t0 + durationMs / 1000);
+    osc.connect(gain).connect(ctx.destination);
+    osc.start(t0); osc.stop(t0 + durationMs / 1000 + 0.02);
+  }
+  function playReturnSound_(kind) {
+    if (kind === 'valid') returnBeep_(1400, 110, 0);
+    else if (kind === 'duplicate') { returnBeep_(700, 130, 0); returnBeep_(700, 130, 170); }
+    else if (kind === 'invalid') returnBeep_(300, 260, 0);
+    else if (kind === 'error') { returnBeep_(220, 320, 0); returnBeep_(220, 320, 360); }
+  }
+  function toggleReturnSound_() {
+    returnSoundOn_ = !returnSoundOn_;
+    document.getElementById('returnSoundBtn').textContent = returnSoundOn_ ? '🔊' : '🔇';
+    if (returnSoundOn_) playReturnSound_('valid');
+  }
+
+  // ---------------- RIWAYAT SCAN SAYA ----------------
+  function setReturnHistoryPeriod_(period) {
+    returnHistoryPeriod_ = period;
+    document.querySelectorAll('#returnHistoryModalBackdrop .period-btn').forEach(function (b) { b.classList.toggle('active', b.dataset.period === period); });
+    loadReturnHistoryData_();
+  }
+
+  function openReturnHistory_() {
+    document.getElementById('returnHistoryModalBackdrop').classList.remove('hidden');
+    loadReturnHistoryData_();
+  }
+
+  function loadReturnHistoryData_() {
+    document.getElementById('returnHistoryTable').innerHTML = '<tr><td colspan="4" style="color:var(--muted)">Memuat...</td></tr>';
+    callApi('getMyReturnReport', { picId: CURRENT_USER.picId, period: returnHistoryPeriod_ }).then(function (rep) {
+      document.getElementById('returnRepValid').textContent = rep.valid;
+      document.getElementById('returnRepDup').textContent = rep.duplicate;
+      document.getElementById('returnRepTotal').textContent = rep.total;
+      document.getElementById('returnHistoryTable').innerHTML = rep.items.map(function (r) {
+        return '<tr><td>' + escapeHtml_(r.receipt) + '</td><td>' + r.date + '</td><td>' + r.time + '</td><td><span class="pill ' + r.status + '">' + r.status + '</span></td></tr>';
+      }).join('') || '<tr><td colspan="4" style="color:var(--muted)">Belum ada scan pada periode ini</td></tr>';
+    }).catch(function (e) {
+      document.getElementById('returnHistoryTable').innerHTML = '<tr><td colspan="4" style="color:var(--red)">Gagal memuat: ' + e + '</td></tr>';
+    });
+  }
+
+  function closeReturnHistory_() {
+    document.getElementById('returnHistoryModalBackdrop').classList.add('hidden');
   }
 
   // ---------------- LAPORAN HARIAN (ABSENSI) — CS ----------------
@@ -1008,7 +1312,9 @@
   }
 
   function roleLabel_(role) {
-    return role === 'PIC' ? 'Staff' : role;
+    if (role === 'PIC') return 'Staff';
+    if (role === 'RETURN') return 'Return';
+    return role;
   }
 
   function escapeHtml_(v) {
@@ -1058,6 +1364,7 @@
     refreshOverview();
     loadPicManagementTable_();
     refreshCsOverview_();
+    refreshReturnOverview_();
     loadDailyReportsList_();
     loadAuditLog_();
     setInterval(function () {
@@ -1281,12 +1588,51 @@
     const label = d.period === 'custom' ? 'Custom' : PERIOD_LABELS_[d.period];
     document.getElementById('csPerPersonTitle').textContent = 'Klasemen CS — ' + label;
     document.getElementById('csOvGrid').innerHTML = [
-      ['Total Session (' + label + ')', d.totalSession], ['Total Qty Cetak', d.totalQtyCetak], ['Jumlah Entri', d.totalEntries]
+      ['Total Session (' + label + ')', d.totalSession], ['Total Qty Cetak', d.totalQtyCetak], ['Total Lainnya', d.totalLainnya], ['Jumlah Entri', d.totalEntries]
     ].map(function (x) { return '<div class="ov-card"><div class="n">' + x[1] + '</div><div class="l">' + x[0] + '</div></div>'; }).join('');
 
     document.getElementById('csPerPersonTable').innerHTML = d.perPerson.map(function (p) {
-      return '<tr><td>' + p.rank + '</td><td>' + escapeHtml_(p.name) + '</td><td>' + p.session + '</td><td>' + p.qtyCetak + '</td><td>' + p.entries + '</td></tr>';
-    }).join('') || '<tr><td colspan="5" style="color:var(--muted)">Belum ada entri pada periode ini</td></tr>';
+      return '<tr><td>' + p.rank + '</td><td>' + escapeHtml_(p.name) + '</td><td>' + p.session + '</td><td>' + p.qtyCetak + '</td><td>' + (p.lainnya || 0) + '</td><td>' + p.entries + '</td></tr>';
+    }).join('') || '<tr><td colspan="6" style="color:var(--muted)">Belum ada entri pada periode ini</td></tr>';
+  }
+
+  // ---------------- RETURN ACTIVITY ----------------
+  let returnDashPeriod_ = 'today';
+  let customReturnDashStart_ = null;
+  let customReturnDashEnd_ = null;
+
+  function setReturnPeriod_(period) {
+    returnDashPeriod_ = period;
+    customReturnDashStart_ = null; customReturnDashEnd_ = null;
+    document.querySelectorAll('#tab-return .period-btn').forEach(function (b) { b.classList.toggle('active', b.dataset.period === period); });
+    refreshReturnOverview_();
+  }
+
+  function applyCustomReturnRange_() {
+    const s = document.getElementById('returnStart').value;
+    const e = document.getElementById('returnEnd').value;
+    if (!s || !e) { alert('Pilih tanggal mulai dan akhir dulu.'); return; }
+    returnDashPeriod_ = 'custom';
+    customReturnDashStart_ = toSheetDateOv_(s);
+    customReturnDashEnd_ = toSheetDateOv_(e);
+    document.querySelectorAll('#tab-return .period-btn').forEach(function (b) { b.classList.remove('active'); });
+    refreshReturnOverview_();
+  }
+
+  function refreshReturnOverview_() {
+    callApi('getReturnOverview', { period: returnDashPeriod_, customStart: customReturnDashStart_, customEnd: customReturnDashEnd_ }).then(renderReturnOverview_).catch(function (e) { console.error(e); });
+  }
+
+  function renderReturnOverview_(d) {
+    const label = d.period === 'custom' ? 'Custom' : PERIOD_LABELS_[d.period];
+    document.getElementById('returnPerPersonTitle').textContent = 'Klasemen Return — ' + label;
+    document.getElementById('returnOvGrid').innerHTML = [
+      ['Total Scan (' + label + ')', d.totalScan], ['Valid', d.totalValid], ['Duplicate', d.totalDuplicate], ['Error', d.totalError]
+    ].map(function (x) { return '<div class="ov-card"><div class="n">' + x[1] + '</div><div class="l">' + x[0] + '</div></div>'; }).join('');
+
+    document.getElementById('returnPerPersonTable').innerHTML = d.perPerson.map(function (p) {
+      return '<tr><td>' + p.rank + '</td><td>' + escapeHtml_(p.name) + '</td><td>' + p.valid + '</td><td>' + p.duplicate + '</td><td>' + p.error + '</td><td>' + p.total + '</td></tr>';
+    }).join('') || '<tr><td colspan="6" style="color:var(--muted)">Belum ada scan pada periode ini</td></tr>';
   }
 
   // ---------------- LAPORAN HARIAN ----------------
