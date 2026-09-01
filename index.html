@@ -134,7 +134,7 @@
     <div class="scan-box">
       <label>SCAN RESI</label>
       <input id="scanInput" autocomplete="off" autofocus placeholder="Ketik manual / scan Bluetooth...">
-      <button id="cameraScanBtn" style="width:100%; margin-top:10px; background:var(--panel-2); color:var(--text); border:1px solid var(--border);" onclick="openCameraScan_()">📷 Scan Pakai Kamera HP</button>
+      <button id="cameraScanBtn" style="width:100%; margin-top:10px; background:var(--panel-2); color:var(--text); border:1px solid var(--border);" onclick="openCameraScan_('staff')">📷 Scan Pakai Kamera HP</button>
     </div>
 
     <div class="status-panel" id="statusPanel">
@@ -291,6 +291,7 @@
       <div class="scan-box">
         <label>SCAN RESI RETURN</label>
         <input id="returnScanInput" autocomplete="off" autofocus placeholder="Tembak barcode / ketik manual...">
+        <button style="width:100%; margin-top:10px; background:var(--panel-2); color:var(--text); border:1px solid var(--border);" onclick="openCameraScan_('return')">📷 Scan Pakai Kamera HP</button>
       </div>
 
       <div class="status-panel" id="returnStatusPanel">
@@ -309,6 +310,7 @@
       <div class="queue-note" id="returnQueueNote"></div>
 
       <button style="width:100%; margin-top:14px; background:var(--panel-2); color:var(--text); border:1px solid var(--border);" onclick="openReturnHistory_()">📋 Riwayat Scan Saya</button>
+      <button style="width:100%; margin-top:10px; background:var(--panel-2); color:var(--text); border:1px solid var(--border);" onclick="openDailyReportReturn_()">📅 Laporan Harian</button>
     </div>
   </div>
 
@@ -326,6 +328,24 @@
       </div>
       <table><thead><tr><th>Resi</th><th>Tanggal</th><th>Jam</th><th>Status</th></tr></thead><tbody id="returnHistoryTable"></tbody></table>
       <div class="modal-actions"><button style="width:100%; background:var(--panel-2); color:var(--text); border:1px solid var(--border);" onclick="closeReturnHistory_()">Tutup</button></div>
+    </div>
+  </div>
+
+  <div class="modal-backdrop hidden" id="dailyReportReturnModalBackdrop">
+    <div class="modal" style="max-width:440px; max-height:80vh; overflow-y:auto;">
+      <h3 style="margin-top:0;">📅 Laporan Harian</h3>
+      <p style="color:var(--muted); font-size:12px; margin-top:-8px;">1 laporan per tanggal — isi ulang di tanggal yang sama akan menimpa laporan sebelumnya.</p>
+      <div class="field"><label>Tanggal</label><input type="date" id="drReturnDate"></div>
+      <div class="field"><label>Jumlah Retur</label><input type="number" id="drReturnJumlah" inputmode="numeric" placeholder="Contoh: 15"></div>
+      <div class="field"><label>Keterangan (opsional, maks 20 karakter)</label><input type="text" id="drReturnKeterangan" maxlength="20" placeholder="Contoh: retur rusak banyak"></div>
+      <div class="field"><label>Jam Lembur (opsional)</label><input type="number" id="drReturnLembur" inputmode="decimal" step="0.5" placeholder="Contoh: 2"></div>
+      <div class="modal-actions">
+        <button style="background:var(--panel-2); color:var(--text); border:1px solid var(--border);" onclick="closeDailyReportReturn_()">Tutup</button>
+        <button class="btn-primary" onclick="submitDailyReportReturn_()">Simpan</button>
+      </div>
+      <p id="drReturnMsg" style="font-size:13px; min-height:18px;"></p>
+      <h4 style="margin-bottom:8px;">Riwayat Laporan Saya</h4>
+      <table><thead><tr><th>Tanggal</th><th>Jumlah Retur</th><th>Ket.</th><th>Lembur</th></tr></thead><tbody id="drReturnHistoryTable"></tbody></table>
     </div>
   </div>
 
@@ -809,8 +829,10 @@
   // ================================================================
   let html5QrCode_ = null;
   let cameraBusy_ = false;
+  let cameraScanTarget_ = 'staff'; // 'staff' | 'return' — menentukan hasil kamera masuk ke scan siapa
 
-  function openCameraScan_() {
+  function openCameraScan_(target) {
+    cameraScanTarget_ = target || 'staff';
     document.getElementById('cameraModalBackdrop').classList.remove('hidden');
     if (typeof Html5Qrcode === 'undefined') { alert('Library kamera gagal dimuat. Cek koneksi internet.'); return; }
 
@@ -831,7 +853,8 @@
       function (decodedText) {
         if (cameraBusy_) return;
         cameraBusy_ = true;
-        handleScan_(decodedText);
+        if (cameraScanTarget_ === 'return') handleReturnScan_(decodedText);
+        else handleScan_(decodedText);
         setTimeout(function () { cameraBusy_ = false; }, 1200);
       },
       function () {}
@@ -943,6 +966,62 @@
       }).join('') || '<tr><td colspan="7" style="color:var(--muted)">Belum ada laporan</td></tr>';
     }).catch(function (e) {
       document.getElementById('drPicHistoryTable').innerHTML = '<tr><td colspan="7" style="color:var(--red)">Gagal memuat: ' + e + '</td></tr>';
+    });
+  }
+
+  // ---------------- LAPORAN HARIAN — RETURN ----------------
+  function openDailyReportReturn_() {
+    document.getElementById('dailyReportReturnModalBackdrop').classList.remove('hidden');
+    document.getElementById('drReturnMsg').textContent = '';
+    if (!document.getElementById('drReturnDate').value) {
+      document.getElementById('drReturnDate').value = new Date().toISOString().slice(0, 10);
+    }
+    loadMyDailyReportsReturn_();
+  }
+
+  function closeDailyReportReturn_() {
+    document.getElementById('dailyReportReturnModalBackdrop').classList.add('hidden');
+  }
+
+  function submitDailyReportReturn_() {
+    const dateVal = document.getElementById('drReturnDate').value;
+    const jumlah = document.getElementById('drReturnJumlah').value;
+    const keterangan = document.getElementById('drReturnKeterangan').value;
+    const lembur = document.getElementById('drReturnLembur').value;
+    if (!dateVal || jumlah === '') {
+      document.getElementById('drReturnMsg').textContent = 'Tanggal dan Jumlah Retur wajib diisi.';
+      document.getElementById('drReturnMsg').style.color = 'var(--red)';
+      return;
+    }
+    const dateStr = toSheetDateDr_(dateVal);
+    document.getElementById('drReturnMsg').textContent = 'Menyimpan...';
+    document.getElementById('drReturnMsg').style.color = 'var(--muted)';
+
+    callApi('submitDailyReport', { picId: CURRENT_USER.picId, picName: CURRENT_USER.name, role: CURRENT_USER.role, date: dateStr, packing: '', inbound: '', preparation: '', session: '', qtyCetak: '', lainnya: jumlah, keterangan: keterangan, lembur: lembur })
+      .then(function (res) {
+        if (!res || !res.success) {
+          document.getElementById('drReturnMsg').textContent = 'Gagal: ' + (res && res.message ? res.message : 'tidak dikenal server');
+          document.getElementById('drReturnMsg').style.color = 'var(--red)';
+          return;
+        }
+        document.getElementById('drReturnMsg').textContent = res.updated ? 'Laporan diperbarui.' : 'Laporan tersimpan.';
+        document.getElementById('drReturnMsg').style.color = 'var(--green)';
+        loadMyDailyReportsReturn_();
+      })
+      .catch(function (e) {
+        document.getElementById('drReturnMsg').textContent = 'Gagal: ' + e;
+        document.getElementById('drReturnMsg').style.color = 'var(--red)';
+      });
+  }
+
+  function loadMyDailyReportsReturn_() {
+    document.getElementById('drReturnHistoryTable').innerHTML = '<tr><td colspan="4" style="color:var(--muted)">Memuat...</td></tr>';
+    callApi('getMyDailyReports', { picId: CURRENT_USER.picId, limit: 30 }).then(function (rows) {
+      document.getElementById('drReturnHistoryTable').innerHTML = rows.map(function (r) {
+        return '<tr><td>' + r.Date + '</td><td>' + (r.Lainnya || '-') + '</td><td>' + escapeHtml_(r.Keterangan || '-') + '</td><td>' + (r.Lembur || '-') + '</td></tr>';
+      }).join('') || '<tr><td colspan="4" style="color:var(--muted)">Belum ada laporan</td></tr>';
+    }).catch(function (e) {
+      document.getElementById('drReturnHistoryTable').innerHTML = '<tr><td colspan="4" style="color:var(--red)">Gagal memuat: ' + e + '</td></tr>';
     });
   }
 
