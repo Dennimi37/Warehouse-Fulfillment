@@ -1880,16 +1880,11 @@
     renderProductivityTable_('prodCsTable', d.cs, ['totalSession', 'totalQtyCetak', 'totalLainnya', 'avgCs']);
 
     prodStaffChartInstance_ = renderProductivityChart_('prodStaffChart', prodStaffChartInstance_, d.staff, [
-      { key: 'totalPacking', label: 'Packing', color: '#3b6b45' },
-      { key: 'totalInbound', label: 'Inbound', color: '#8a9a5b' },
-      { key: 'totalPreparation', label: 'Preparation', color: '#c9a24b' },
-      { key: 'totalLainnya', label: 'Lainnya', color: '#a3a3a3' }
+      { key: 'avgStaff', label: 'Rata-rata/Hari', color: '#3b6b45' }
     ]);
 
     prodCsChartInstance_ = renderProductivityChart_('prodCsChart', prodCsChartInstance_, d.cs, [
-      { key: 'totalSession', label: 'Session', color: '#3b6b45' },
-      { key: 'totalQtyCetak', label: 'Qty Cetak', color: '#8a9a5b' },
-      { key: 'totalLainnya', label: 'Lainnya', color: '#c9a24b' }
+      { key: 'avgCs', label: 'Rata-rata/Hari', color: '#3b6b45' }
     ]);
   }
 
