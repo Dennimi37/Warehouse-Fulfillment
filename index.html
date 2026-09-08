@@ -114,7 +114,7 @@
       <input id="loginPin" placeholder="PIN" type="password" inputmode="numeric" autocomplete="off">
       <button id="loginBtn" onclick="doLogin()">MASUK</button>
       <div class="login-error" id="loginError"></div>
-      <div class="login-note">SEMANGAT GUYS,BISMILLAH.</div>
+      <div class="login-note">Halaman ini khusus PIC untuk scan pakai kamera HP.</div>
     </div>
   </div>
 
@@ -370,6 +370,7 @@
         <button class="tab-btn" data-tab="cs" onclick="switchTab('cs')">CS Activity</button>
         <button class="tab-btn" data-tab="return" onclick="switchTab('return')">Return Activity</button>
         <button class="tab-btn" data-tab="daily" onclick="switchTab('daily')">Laporan Harian</button>
+        <button class="tab-btn" data-tab="productivity" onclick="switchTab('productivity')">Produktivitas</button>
         <button class="tab-btn" data-tab="audit" onclick="switchTab('audit')">Audit Log</button>
       </div>
 
@@ -498,6 +499,34 @@
             <button class="btn-secondary" onclick="clearDailyReportsFilter_()">Tampilkan Semua</button>
           </div>
           <table><thead><tr><th>Tanggal</th><th>Nama</th><th>Role</th><th>Packing</th><th>Inbound</th><th>Preparation</th><th>Session</th><th>Qty Cetak</th><th>Lainnya</th><th>Ket.</th><th>Lembur</th></tr></thead><tbody id="dailyReportsTable"></tbody></table>
+        </div>
+      </div>
+
+      <div class="tab-panel" id="tab-productivity">
+        <div class="panel-box">
+          <div class="filter-row" style="margin-bottom:10px;">
+            <button class="tab-btn period-btn" data-mode="7d" onclick="setProductivityMode_('7d')">7 Hari Terakhir</button>
+            <button class="tab-btn period-btn" data-mode="30d" onclick="setProductivityMode_('30d')">30 Hari Terakhir</button>
+            <button class="tab-btn period-btn active" data-mode="period" onclick="setProductivityMode_('period')">Periode</button>
+          </div>
+          <div class="filter-row" id="productivityPeriodFields" style="margin-bottom:14px;">
+            <div class="field"><label>Dari tanggal</label><input type="date" id="prodStart"></div>
+            <div class="field"><label>Sampai tanggal</label><input type="date" id="prodEnd"></div>
+            <button class="btn-primary" onclick="loadProductivity_()">Terapkan</button>
+          </div>
+          <p id="prodRangeLabel" style="color:var(--muted); font-size:13px;"></p>
+        </div>
+        <div class="panel-box">
+          <h3 style="margin-top:0;">Rata-rata Staff (per hari lapor)</h3>
+          <table><thead><tr><th>Nama</th><th>Hari Lapor</th><th>Packing</th><th>Inbound</th><th>Preparation</th><th>Lembur</th></tr></thead><tbody id="prodStaffTable"></tbody></table>
+        </div>
+        <div class="panel-box">
+          <h3 style="margin-top:0;">Rata-rata CS (per hari lapor)</h3>
+          <table><thead><tr><th>Nama</th><th>Hari Lapor</th><th>Session</th><th>Qty Cetak</th><th>Lainnya</th><th>Lembur</th></tr></thead><tbody id="prodCsTable"></tbody></table>
+        </div>
+        <div class="panel-box">
+          <h3 style="margin-top:0;">Rata-rata Return (per hari lapor)</h3>
+          <table><thead><tr><th>Nama</th><th>Hari Lapor</th><th>Jumlah Retur</th><th>Lembur</th></tr></thead><tbody id="prodReturnTable"></tbody></table>
         </div>
       </div>
 
@@ -1769,6 +1798,46 @@
     document.getElementById('dailyStart').value = '';
     document.getElementById('dailyEnd').value = '';
     loadDailyReportsList_();
+  }
+
+  // ---------------- PRODUKTIVITAS ----------------
+  let productivityMode_ = 'period';
+
+  function setProductivityMode_(mode) {
+    productivityMode_ = mode;
+    document.querySelectorAll('#tab-productivity .period-btn').forEach(function (b) { b.classList.toggle('active', b.dataset.mode === mode); });
+    document.getElementById('productivityPeriodFields').style.display = mode === 'period' ? 'flex' : 'none';
+    if (mode === '7d') {
+      loadProductivityRange_(todayShiftedSheetDate_(-6), todayShiftedSheetDate_(0));
+    } else if (mode === '30d') {
+      loadProductivityRange_(todayShiftedSheetDate_(-29), todayShiftedSheetDate_(0));
+    } else {
+      loadProductivity_();
+    }
+  }
+
+  function renderProductivityTable_(elId, rows, cols) {
+    document.getElementById(elId).innerHTML = rows.map(function (p) {
+      return '<tr><td>' + escapeHtml_(p.name) + '</td><td>' + p.daysReported + '</td>' + cols.map(function (c) { return '<td>' + p[c] + '</td>'; }).join('') + '</tr>';
+    }).join('') || '<tr><td colspan="' + (cols.length + 2) + '" style="color:var(--muted)">Belum ada laporan pada periode ini</td></tr>';
+  }
+
+  function renderProductivity_(d) {
+    renderProductivityTable_('prodStaffTable', d.staff, ['avgPacking', 'avgInbound', 'avgPreparation', 'avgLembur']);
+    renderProductivityTable_('prodCsTable', d.cs, ['avgSession', 'avgQtyCetak', 'avgLainnya', 'avgLembur']);
+    renderProductivityTable_('prodReturnTable', d.returnTeam, ['avgLainnya', 'avgLembur']);
+  }
+
+  function loadProductivityRange_(startDate, endDate) {
+    document.getElementById('prodRangeLabel').textContent = 'Menampilkan rata-rata dari ' + startDate + ' s/d ' + endDate;
+    callApi('getProductivityAverages', { startDate: startDate, endDate: endDate }).then(renderProductivity_).catch(function (err) { console.error(err); });
+  }
+
+  function loadProductivity_() {
+    const s = document.getElementById('prodStart').value;
+    const e = document.getElementById('prodEnd').value;
+    if (!s || !e) { alert('Pilih tanggal mulai dan akhir dulu.'); return; }
+    loadProductivityRange_(toSheetDateOv2_(s), toSheetDateOv2_(e));
   }
 
   function loadAuditLog_() {
