@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 <title>Warehouse Activity and Report — Scan</title>
 <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <style>
   :root {
     --bg: #f3efe0; --panel: #fffdf8; --panel-2: #ece2c8; --border: #d6c8a3;
@@ -523,15 +524,19 @@
         </div>
         <div class="panel-box">
           <h3 style="margin-top:0;">Produktivitas Staff</h3>
-          <table><thead><tr><th>Nama</th><th>Hari Lapor</th><th>Packing</th><th>Inbound</th><th>Preparation</th><th>Rata-rata/Hari</th></tr></thead><tbody id="prodStaffTable"></tbody></table>
+          <table><thead><tr><th>Nama</th><th>Hari Lapor</th><th>Packing</th><th>Inbound</th><th>Preparation</th><th>Lainnya</th><th>Rata-rata/Hari</th></tr></thead><tbody id="prodStaffTable"></tbody></table>
+        </div>
+        <div class="panel-box">
+          <h3 style="margin-top:0;">Chart Produktivitas Staff</h3>
+          <canvas id="prodStaffChart" height="220"></canvas>
         </div>
         <div class="panel-box">
           <h3 style="margin-top:0;">Produktivitas CS</h3>
           <table><thead><tr><th>Nama</th><th>Hari Lapor</th><th>Session</th><th>Qty Cetak</th><th>Lainnya</th><th>Rata-rata/Hari</th></tr></thead><tbody id="prodCsTable"></tbody></table>
         </div>
         <div class="panel-box">
-          <h3 style="margin-top:0;">Produktivitas Return</h3>
-          <table><thead><tr><th>Nama</th><th>Hari Lapor</th><th>Jumlah Retur</th><th>Rata-rata/Hari</th></tr></thead><tbody id="prodReturnTable"></tbody></table>
+          <h3 style="margin-top:0;">Chart Produktivitas CS</h3>
+          <canvas id="prodCsChart" height="220"></canvas>
         </div>
       </div>
 
@@ -1839,8 +1844,30 @@
   }
 
   function renderProductivityError_(msg) {
-    ['prodStaffTable', 'prodCsTable', 'prodReturnTable'].forEach(function (id) {
+    ['prodStaffTable', 'prodCsTable'].forEach(function (id) {
       document.getElementById(id).innerHTML = '<tr><td colspan="6" style="color:var(--red)">Gagal memuat: ' + msg + '</td></tr>';
+    });
+  }
+
+  let prodStaffChartInstance_ = null;
+  let prodCsChartInstance_ = null;
+
+  function renderProductivityChart_(canvasId, existingInstance, rows, datasetDefs) {
+    if (existingInstance) existingInstance.destroy();
+    const ctx = document.getElementById(canvasId).getContext('2d');
+    return new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: rows.map(function (p) { return p.name; }),
+        datasets: datasetDefs.map(function (def) {
+          return { label: def.label, data: rows.map(function (p) { return p[def.key]; }), backgroundColor: def.color };
+        })
+      },
+      options: {
+        responsive: true,
+        plugins: { legend: { position: 'bottom' } },
+        scales: { y: { beginAtZero: true } }
+      }
     });
   }
 
@@ -1849,14 +1876,26 @@
       renderProductivityError_('Server tidak mengenali data ini — kemungkinan Apps Script belum di-deploy ulang dengan kode terbaru.');
       return;
     }
-    renderProductivityTable_('prodStaffTable', d.staff, ['totalPacking', 'totalInbound', 'totalPreparation', 'avgStaff']);
+    renderProductivityTable_('prodStaffTable', d.staff, ['totalPacking', 'totalInbound', 'totalPreparation', 'totalLainnya', 'avgStaff']);
     renderProductivityTable_('prodCsTable', d.cs, ['totalSession', 'totalQtyCetak', 'totalLainnya', 'avgCs']);
-    renderProductivityTable_('prodReturnTable', d.returnTeam, ['totalLainnya', 'avgReturn']);
+
+    prodStaffChartInstance_ = renderProductivityChart_('prodStaffChart', prodStaffChartInstance_, d.staff, [
+      { key: 'totalPacking', label: 'Packing', color: '#3b6b45' },
+      { key: 'totalInbound', label: 'Inbound', color: '#8a9a5b' },
+      { key: 'totalPreparation', label: 'Preparation', color: '#c9a24b' },
+      { key: 'totalLainnya', label: 'Lainnya', color: '#a3a3a3' }
+    ]);
+
+    prodCsChartInstance_ = renderProductivityChart_('prodCsChart', prodCsChartInstance_, d.cs, [
+      { key: 'totalSession', label: 'Session', color: '#3b6b45' },
+      { key: 'totalQtyCetak', label: 'Qty Cetak', color: '#8a9a5b' },
+      { key: 'totalLainnya', label: 'Lainnya', color: '#c9a24b' }
+    ]);
   }
 
   function loadProductivityRange_(startDate, endDate) {
     document.getElementById('prodRangeLabel').textContent = 'Menampilkan rata-rata dari ' + startDate + ' s/d ' + endDate;
-    ['prodStaffTable', 'prodCsTable', 'prodReturnTable'].forEach(function (id) {
+    ['prodStaffTable', 'prodCsTable'].forEach(function (id) {
       document.getElementById(id).innerHTML = '<tr><td colspan="6" style="color:var(--muted)">Memuat...</td></tr>';
     });
     callApi('getProductivityAverages', { startDate: startDate, endDate: endDate }).then(renderProductivity_).catch(function (err) { renderProductivityError_(err); });
