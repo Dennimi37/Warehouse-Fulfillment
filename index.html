@@ -509,9 +509,8 @@
           <div class="filter-row" style="margin-bottom:10px;">
             <button class="tab-btn period-btn active" data-mode="7d" onclick="setProductivityMode_('7d')">7 Hari Terakhir</button>
             <button class="tab-btn period-btn" data-mode="30d" onclick="setProductivityMode_('30d')">30 Hari Terakhir</button>
-            <button class="tab-btn period-btn" data-mode="period" onclick="setProductivityMode_('period')">Periode</button>
           </div>
-          <div class="filter-row" id="productivityPeriodFields" style="margin-bottom:14px; display:none;">
+          <div class="filter-row" id="productivityPeriodFields" style="margin-bottom:14px;">
             <div class="field"><label>Dari tanggal</label><input type="date" id="prodStart"></div>
             <div class="field"><label>Sampai tanggal</label><input type="date" id="prodEnd"></div>
             <button class="btn-primary" onclick="loadProductivity_()">Terapkan</button>
@@ -1822,13 +1821,10 @@
   function setProductivityMode_(mode) {
     productivityMode_ = mode;
     document.querySelectorAll('#tab-productivity .period-btn').forEach(function (b) { b.classList.toggle('active', b.dataset.mode === mode); });
-    document.getElementById('productivityPeriodFields').style.display = mode === 'period' ? 'flex' : 'none';
     if (mode === '7d') {
       loadProductivityRange_(todayShiftedSheetDate_(-6), todayShiftedSheetDate_(0));
     } else if (mode === '30d') {
       loadProductivityRange_(todayShiftedSheetDate_(-29), todayShiftedSheetDate_(0));
-    } else {
-      loadProductivity_();
     }
   }
 
@@ -1897,6 +1893,7 @@
     const s = document.getElementById('prodStart').value;
     const e = document.getElementById('prodEnd').value;
     if (!s || !e) { alert('Pilih tanggal mulai dan akhir dulu.'); return; }
+    document.querySelectorAll('#tab-productivity .period-btn').forEach(function (b) { b.classList.remove('active'); });
     loadProductivityRange_(toSheetDateOv2_(s), toSheetDateOv2_(e));
   }
 
