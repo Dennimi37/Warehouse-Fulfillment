@@ -402,10 +402,6 @@
           <div class="overview-grid" id="ovReturnGrid" style="margin-bottom:14px;"></div>
           <table><thead><tr><th>#</th><th>Nama</th><th>Valid</th><th>Duplicate</th><th>Error</th><th>Total</th></tr></thead><tbody id="ovReturnTable"></tbody></table>
         </div>
-        <div class="panel-box">
-          <h3 style="margin-top:0;">Aktivitas Real-time</h3>
-          <table><thead><tr><th>Nama</th><th>Role</th><th>Status</th><th>Last Activity</th><th>Total</th></tr></thead><tbody id="activityTable"></tbody></table>
-        </div>
       </div>
 
       <div class="tab-panel" id="tab-search">
@@ -1516,11 +1512,6 @@
     document.getElementById('perPicTable').innerHTML = d.perPic.map(function (p) {
       return '<tr><td>' + p.rank + '</td><td>' + escapeHtml_(p.name) + ' (' + escapeHtml_(p.picId) + ')</td><td>' + p.valid + '</td><td>' + p.duplicate + '</td><td>' + p.error + '</td><td>' + p.total + '</td></tr>';
     }).join('') || '<tr><td colspan="6" style="color:var(--muted)">Belum ada scan pada periode ini</td></tr>';
-
-    document.getElementById('activityTable').innerHTML = d.activity.map(function (a) {
-      const last = a.lastScan ? new Date(a.lastScan).toLocaleTimeString('id-ID') : '-';
-      return '<tr><td>' + escapeHtml_(a.name) + '</td><td>' + escapeHtml_(roleLabel_(a.role)) + '</td><td><span class="pill ' + a.status + '">' + a.status + '</span></td><td>' + last + '</td><td>' + a.total + '</td></tr>';
-    }).join('');
 
     if (d.cs) {
       document.getElementById('ovCsTitle').textContent = 'CS Activity — ' + label;
