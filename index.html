@@ -527,16 +527,20 @@
           <table><thead><tr><th>Nama</th><th>Hari Lapor</th><th>Packing</th><th>Inbound</th><th>Preparation</th><th>Lainnya</th><th>Rata-rata/Hari</th></tr></thead><tbody id="prodStaffTable"></tbody></table>
         </div>
         <div class="panel-box">
-          <h3 style="margin-top:0;">Chart Produktivitas Staff</h3>
-          <canvas id="prodStaffChart" height="220"></canvas>
-        </div>
-        <div class="panel-box">
           <h3 style="margin-top:0;">Produktivitas CS</h3>
           <table><thead><tr><th>Nama</th><th>Hari Lapor</th><th>Session</th><th>Qty Cetak</th><th>Lainnya</th><th>Rata-rata/Hari</th></tr></thead><tbody id="prodCsTable"></tbody></table>
         </div>
         <div class="panel-box">
-          <h3 style="margin-top:0;">Chart Produktivitas CS</h3>
-          <canvas id="prodCsChart" height="220"></canvas>
+          <div style="display:flex; gap:16px; flex-wrap:wrap;">
+            <div style="flex:1; min-width:260px; max-width:480px;">
+              <h4 style="margin-top:0;">Chart Produktivitas Staff</h4>
+              <canvas id="prodStaffChart"></canvas>
+            </div>
+            <div style="flex:1; min-width:260px; max-width:480px;">
+              <h4 style="margin-top:0;">Chart Produktivitas CS</h4>
+              <canvas id="prodCsChart"></canvas>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -1865,6 +1869,8 @@
       },
       options: {
         responsive: true,
+        maintainAspectRatio: true,
+        aspectRatio: 1.1,
         plugins: { legend: { position: 'bottom' } },
         scales: { y: { beginAtZero: true } }
       }
