@@ -115,7 +115,7 @@
       <input id="loginPin" placeholder="PIN" type="password" inputmode="numeric" autocomplete="off">
       <button id="loginBtn" onclick="doLogin()">MASUK</button>
       <div class="login-error" id="loginError"></div>
-      <div class="login-note">Bismillahirrahmanirrahiim</div>
+      <div class="login-note">Halaman ini khusus PIC untuk scan pakai kamera HP.</div>
     </div>
   </div>
 
@@ -360,9 +360,10 @@
       <div>
         <div class="title">WAREHOUSE ACTIVITY AND REPORT</div>
         <div class="who" id="dashWho"></div>
+        <div id="ovRefreshStatus" style="font-size:12px; color:var(--muted); margin-top:2px;"></div>
       </div>
       <div class="actions">
-        <button class="icon-btn" onclick="refreshOverview()">🔄 Refresh</button>
+        <button class="icon-btn" id="refreshBtn" onclick="refreshOverview()">🔄 Refresh</button>
         <button class="icon-btn" onclick="doLogout()">Keluar</button>
       </div>
     </div>
@@ -1498,8 +1499,42 @@
     document.querySelectorAll('.tab-panel').forEach(function (p) { p.classList.toggle('active', p.id === 'tab-' + tab); });
   }
 
+  let ovRefreshInFlight_ = false;
+
+  function setOvRefreshStatus_(state, msg) {
+    const el = document.getElementById('ovRefreshStatus');
+    const btn = document.getElementById('refreshBtn');
+    if (!el) return;
+    if (state === 'loading') {
+      el.textContent = '⏳ Memuat...';
+      el.style.color = 'var(--muted)';
+      if (btn) { btn.disabled = true; btn.textContent = '⏳ Memuat...'; }
+    } else if (state === 'success') {
+      const now = new Date();
+      el.textContent = '✓ Update terakhir: ' + now.toLocaleTimeString('id-ID');
+      el.style.color = 'var(--muted)';
+      if (btn) { btn.disabled = false; btn.textContent = '🔄 Refresh'; }
+    } else if (state === 'error') {
+      el.textContent = '⚠ Gagal memuat data terbaru: ' + msg + ' (data yang tampil mungkin sudah lama)';
+      el.style.color = 'var(--red)';
+      if (btn) { btn.disabled = false; btn.textContent = '🔄 Refresh'; }
+    }
+  }
+
   function refreshOverview() {
-    callApi('getDashboardOverview', { period: currentPeriod_, customStart: customOvStart_, customEnd: customOvEnd_ }).then(renderOverview_).catch(function (e) { console.error(e); });
+    if (ovRefreshInFlight_) return;
+    ovRefreshInFlight_ = true;
+    setOvRefreshStatus_('loading');
+    callApi('getDashboardOverview', { period: currentPeriod_, customStart: customOvStart_, customEnd: customOvEnd_ })
+      .then(function (d) {
+        ovRefreshInFlight_ = false;
+        renderOverview_(d);
+        setOvRefreshStatus_('success');
+      })
+      .catch(function (e) {
+        ovRefreshInFlight_ = false;
+        setOvRefreshStatus_('error', e);
+      });
   }
 
   function renderOverview_(d) {
@@ -1609,6 +1644,7 @@
   }
 
   function loadPicManagementTable_() {
+    document.getElementById('picTable').innerHTML = '<tr><td colspan="8" style="color:var(--muted)">⏳ Memuat...</td></tr>';
     callApi('listPicsWithStats', { period: picStatsPeriod_, customStart: customPicStatsStart_, customEnd: customPicStatsEnd_ }).then(function (pics) {
       picListCache = pics;
       document.getElementById('picTable').innerHTML = pics.map(function (p, i) {
@@ -1617,7 +1653,9 @@
           '<td>' + p.valid + '</td><td>' + p.duplicate + '</td><td>' + p.error + '</td>' +
           '<td style="display:flex; gap:6px;"><button class="btn-secondary" onclick="openEditPicModalByIndex(' + i + ')">Edit</button>' +
           '<button class="btn-danger" onclick="confirmDeletePic_(' + i + ')">Hapus</button></td></tr>';
-      }).join('');
+      }).join('') || '<tr><td colspan="8" style="color:var(--muted)">Belum ada akun terdaftar</td></tr>';
+    }).catch(function (e) {
+      document.getElementById('picTable').innerHTML = '<tr><td colspan="8" style="color:var(--red)">⚠ Gagal memuat: ' + e + '</td></tr>';
     });
   }
 
@@ -1833,11 +1871,14 @@
   }
 
   function loadAuditLog_() {
+    document.getElementById('auditTable').innerHTML = '<tr><td colspan="5" style="color:var(--muted)">⏳ Memuat...</td></tr>';
     callApi('getAuditLog', { limit: 300 }).then(function (rows) {
       document.getElementById('auditTable').innerHTML = rows.map(function (r) {
         const t = r.Timestamp ? new Date(r.Timestamp).toLocaleString('id-ID') : '';
         return '<tr><td>' + t + '</td><td>' + escapeHtml_(r.PICName) + '</td><td>' + escapeHtml_(r.Action) + '</td><td>' + escapeHtml_(r.ReceiptNumber || '') + '</td><td>' + escapeHtml_(r.Description || '') + '</td></tr>';
-      }).join('');
+      }).join('') || '<tr><td colspan="5" style="color:var(--muted)">Belum ada log</td></tr>';
+    }).catch(function (e) {
+      document.getElementById('auditTable').innerHTML = '<tr><td colspan="5" style="color:var(--red)">⚠ Gagal memuat: ' + e + '</td></tr>';
     });
   }
 </script>
