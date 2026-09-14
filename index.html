@@ -115,7 +115,7 @@
       <input id="loginPin" placeholder="PIN" type="password" inputmode="numeric" autocomplete="off">
       <button id="loginBtn" onclick="doLogin()">MASUK</button>
       <div class="login-error" id="loginError"></div>
-      <div class="login-note">Bismillahirrahmanirrahiim.</div>
+      <div class="login-note">Bismillahirrahmanirrahim.</div>
     </div>
   </div>
 
@@ -255,7 +255,7 @@
         <div class="stat-card total"><div class="n" id="csRepLainnya">0</div><div class="l">TOTAL LAINNYA</div></div>
         <div class="stat-card duplicate"><div class="n" id="csRepCount">0</div><div class="l">JUMLAH ENTRI</div></div>
       </div>
-      <table><thead><tr><th>Session Chat</th><th>Qty DO</th><th>Sertifikat</th><th>Lainnya</th><th>Tanggal</th><th>Jam</th><th>Catatan</th></tr></thead><tbody id="csHistoryTable"></tbody></table>
+      <table><thead><tr><th>Session Chat</th><th>Qty DO (Resi)</th><th>Sertifikat</th><th>Lainnya</th><th>Tanggal</th><th>Jam</th><th>Catatan</th></tr></thead><tbody id="csHistoryTable"></tbody></table>
       <div class="modal-actions"><button style="width:100%; background:var(--panel-2); color:var(--text); border:1px solid var(--border);" onclick="closeMyCsHistory_()">Tutup</button></div>
     </div>
   </div>
@@ -266,7 +266,7 @@
       <p style="color:var(--muted); font-size:12px; margin-top:-8px;">1 laporan per tanggal — isi ulang di tanggal yang sama akan menimpa laporan sebelumnya.</p>
       <div class="field"><label>Tanggal</label><input type="date" id="drCsDate"></div>
       <div class="field"><label>Sesi</label><input type="number" id="drCsSession" inputmode="numeric" placeholder="Contoh: 3"></div>
-      <div class="field"><label>Qty DO</label><input type="number" id="drCsQty" inputmode="numeric" placeholder="Contoh: 150"></div>
+      <div class="field"><label>Qty DO (Resi)</label><input type="number" id="drCsQty" inputmode="numeric" placeholder="Contoh: 150"></div>
       <div class="field"><label>Lainnya (opsional)</label><input type="number" id="drCsLainnya" inputmode="numeric" placeholder="Contoh: 10"></div>
       <div class="field"><label>Keterangan (opsional, maks 20 karakter)</label><input type="text" id="drCsKeterangan" maxlength="20" placeholder="Contoh: koneksi lambat"></div>
       <div class="field"><label>Jam Lembur (opsional)</label><input type="number" id="drCsLembur" inputmode="decimal" step="0.5" placeholder="Contoh: 2"></div>
@@ -393,7 +393,7 @@
         </div>
         <div class="overview-grid" id="ovGrid"></div>
         <div class="panel-box">
-          <h3 style="margin-top:0;" id="ovBalanceTitle">Balancing Qty DO vs Total Scan Staff — Hari Ini</h3>
+          <h3 style="margin-top:0;" id="ovBalanceTitle">Balancing Qty DO (Resi) vs Total Scan Staff — Hari Ini</h3>
           <div class="overview-grid" id="ovBalanceGrid"></div>
         </div>
         <div class="panel-box">
@@ -403,7 +403,7 @@
         <div class="panel-box">
           <h3 style="margin-top:0;" id="ovCsTitle">CS Activity — Hari Ini</h3>
           <div class="overview-grid" id="ovCsGrid" style="margin-bottom:14px;"></div>
-          <table><thead><tr><th>#</th><th>Nama</th><th>Session Chat</th><th>Qty DO</th><th>Sertifikat</th><th>Entri</th></tr></thead><tbody id="ovCsTable"></tbody></table>
+          <table><thead><tr><th>#</th><th>Nama</th><th>Session Chat</th><th>Qty DO (Resi)</th><th>Sertifikat</th><th>Entri</th></tr></thead><tbody id="ovCsTable"></tbody></table>
         </div>
         <div class="panel-box">
           <h3 style="margin-top:0;" id="ovReturnTitle">Return Activity — Hari Ini</h3>
@@ -441,7 +441,7 @@
             <button class="btn-primary" onclick="doFilterHistory()">Terapkan</button>
             <button class="btn-secondary" onclick="doExport()">⬇ Export CSV</button>
           </div>
-          <table><thead><tr><th>Resi</th><th>Staff</th><th>Tanggal</th><th>Jam</th><th>Status</th><th>Keterangan</th></tr></thead><tbody id="historyTable"></tbody></table>
+          <table><thead><tr><th>Resi</th><th>Sumber</th><th>Nama</th><th>Tanggal</th><th>Jam</th><th>Status</th><th>Keterangan</th></tr></thead><tbody id="historyTable"></tbody></table>
         </div>
       </div>
 
@@ -476,7 +476,7 @@
             <button class="btn-primary" onclick="loadDailyReportsList_()">Terapkan</button>
             <button class="btn-secondary" onclick="clearDailyReportsFilter_()">Tampilkan Semua</button>
           </div>
-          <table><thead><tr><th>Tanggal</th><th>Nama</th><th>Role</th><th>Packing</th><th>Inbound</th><th>Preparation</th><th>Session Chat</th><th>Qty DO</th><th>Lainnya</th><th>Ket.</th><th>Lembur</th></tr></thead><tbody id="dailyReportsTable"></tbody></table>
+          <table><thead><tr><th>Tanggal</th><th>Nama</th><th>Role</th><th>Packing</th><th>Inbound</th><th>Preparation</th><th>Session Chat</th><th>Qty DO (Resi)</th><th>Lainnya</th><th>Ket.</th><th>Lembur</th></tr></thead><tbody id="dailyReportsTable"></tbody></table>
         </div>
       </div>
 
@@ -499,7 +499,7 @@
         </div>
         <div class="panel-box">
           <h3 style="margin-top:0;">Produktivitas CS</h3>
-          <table><thead><tr><th>Nama</th><th>Hari Lapor</th><th>Session Chat</th><th>Qty DO</th><th>Lainnya</th><th>Rata-rata/Hari</th></tr></thead><tbody id="prodCsTable"></tbody></table>
+          <table><thead><tr><th>Nama</th><th>Hari Lapor</th><th>Session Chat</th><th>Qty DO (Resi)</th><th>Lainnya</th><th>Rata-rata/Hari</th></tr></thead><tbody id="prodCsTable"></tbody></table>
         </div>
         <div class="panel-box">
           <h3 style="margin-top:0;">Chart Produktivitas Staff (per indikator)</h3>
@@ -530,7 +530,7 @@
               <canvas id="prodChartSession"></canvas>
             </div>
             <div style="flex:1; min-width:220px; max-width:280px;">
-              <h4 style="margin-top:0; text-align:center;">Qty DO</h4>
+              <h4 style="margin-top:0; text-align:center;">Qty DO (Resi)</h4>
               <canvas id="prodChartQtyCetak"></canvas>
             </div>
             <div style="flex:1; min-width:220px; max-width:280px;">
@@ -1082,7 +1082,7 @@
     const notes = document.getElementById('csNotesInput').value.trim();
 
     if (session === '' || qty === '' || lainnya === '') {
-      renderCsStatus_('invalid', '🔴', 'Session Chat, Qty DO, dan Lainnya wajib diisi');
+      renderCsStatus_('invalid', '🔴', 'Session Chat, Qty DO (Resi), dan Lainnya wajib diisi');
       return;
     }
 
@@ -1097,7 +1097,7 @@
           renderCsStatus_('error', '🔴', 'Gagal menyimpan: ' + (res && res.message ? res.message : 'Server tidak mengenali aksi ini — kemungkinan Apps Script belum di-deploy ulang dengan kode terbaru.'));
           return;
         }
-        renderCsStatus_('valid', '🟢', 'Tersimpan! Session Chat: ' + session + ', Qty DO: ' + qty + ', Lainnya: ' + lainnya);
+        renderCsStatus_('valid', '🟢', 'Tersimpan! Session Chat: ' + session + ', Qty DO (Resi): ' + qty + ', Lainnya: ' + lainnya);
         document.getElementById('csSessionInput').value = '';
         document.getElementById('csQtyInput').value = '';
         document.getElementById('csSertifikatInput').value = '';
@@ -1546,12 +1546,12 @@
     ].map(function (x) { return '<div class="ov-card"><div class="n">' + x[1] + '</div><div class="l">' + x[0] + '</div></div>'; }).join('');
 
     if (d.balancing) {
-      document.getElementById('ovBalanceTitle').textContent = 'Balancing Qty DO vs Total Scan Staff — ' + label;
+      document.getElementById('ovBalanceTitle').textContent = 'Balancing Qty DO (Resi) vs Total Scan Staff — ' + label;
       const selisih = d.balancing.selisih;
       const selisihColor = selisih > 0 ? 'var(--yellow)' : (selisih < 0 ? 'var(--red)' : 'var(--green)');
       const selisihText = (selisih > 0 ? '+' : '') + selisih + (selisih > 0 ? ' (belum discan)' : (selisih < 0 ? ' (scan lebih banyak dari DO)' : ' (pas)'));
       document.getElementById('ovBalanceGrid').innerHTML = [
-        ['Total Qty DO (CS)', d.balancing.qtyDo], ['Total Scan Valid (Staff)', d.balancing.totalScanStaff]
+        ['Total Qty DO (Resi CS)', d.balancing.qtyDo], ['Total Scan Valid (Staff)', d.balancing.totalScanStaff]
       ].map(function (x) { return '<div class="ov-card"><div class="n">' + x[1] + '</div><div class="l">' + x[0] + '</div></div>'; }).join('')
         + '<div class="ov-card"><div class="n" style="color:' + selisihColor + ';">' + selisihText + '</div><div class="l">Selisih (DO − Scan)</div></div>';
     }
@@ -1563,7 +1563,7 @@
     if (d.cs) {
       document.getElementById('ovCsTitle').textContent = 'CS Activity — ' + label;
       document.getElementById('ovCsGrid').innerHTML = [
-        ['Total Session Chat', d.cs.totalSession], ['Total Qty DO', d.cs.totalQtyCetak], ['Total Sertifikat', d.cs.totalSertifikat], ['Jumlah Entri', d.cs.totalEntries]
+        ['Total Session Chat', d.cs.totalSession], ['Total Qty DO (Resi)', d.cs.totalQtyCetak], ['Total Sertifikat', d.cs.totalSertifikat], ['Jumlah Entri', d.cs.totalEntries]
       ].map(function (x) { return '<div class="ov-card"><div class="n">' + x[1] + '</div><div class="l">' + x[0] + '</div></div>'; }).join('');
       document.getElementById('ovCsTable').innerHTML = d.cs.perPerson.map(function (p) {
         return '<tr><td>' + p.rank + '</td><td>' + escapeHtml_(p.name) + '</td><td>' + p.session + '</td><td>' + p.qtyCetak + '</td><td>' + (p.sertifikat || 0) + '</td><td>' + p.entries + '</td></tr>';
@@ -1601,8 +1601,8 @@
     callApi('listPics', {}).then(function (pics) {
       picListCache = pics;
       const sel = document.getElementById('fPic');
-      pics.filter(function (p) { return p.Role === 'PIC'; }).forEach(function (p) {
-        const opt = document.createElement('option'); opt.value = p.PICID; opt.textContent = p.Nama + ' (' + p.PICID + ')'; sel.appendChild(opt);
+      pics.filter(function (p) { return p.Role === 'PIC' || p.Role === 'RETURN'; }).forEach(function (p) {
+        const opt = document.createElement('option'); opt.value = p.PICID; opt.textContent = p.Nama + ' (' + roleLabel_(p.Role) + ')'; sel.appendChild(opt);
       });
     });
   }
@@ -1628,12 +1628,12 @@
 
   function doFilterHistory() {
     const tbody = document.getElementById('historyTable');
-    tbody.innerHTML = '<tr><td colspan="6" style="color:var(--muted)">Memuat...</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="7" style="color:var(--muted)">⏳ Memuat...</td></tr>';
     callApi('getFilteredTransactions', { filters: currentFilters_(), limit: 1000 }).then(function (rows) {
       tbody.innerHTML = rows.map(function (r) {
-        return '<tr><td>' + escapeHtml_(r.ReceiptNumber) + '</td><td>' + escapeHtml_(r.PICName) + '</td><td>' + r.Date + '</td><td>' + r.Time + '</td><td><span class="pill ' + r.Status + '">' + r.Status + '</span></td><td>' + escapeHtml_(r.Notes || '') + '</td></tr>';
-      }).join('') || '<tr><td colspan="6" style="color:var(--muted)">Tidak ada data</td></tr>';
-    }).catch(function (e) { tbody.innerHTML = '<tr><td colspan="6" style="color:var(--red)">Error: ' + e + '</td></tr>'; });
+        return '<tr><td>' + escapeHtml_(r.ReceiptNumber) + '</td><td>' + escapeHtml_(r.Sumber || 'Staff') + '</td><td>' + escapeHtml_(r.PICName) + '</td><td>' + r.Date + '</td><td>' + r.Time + '</td><td><span class="pill ' + r.Status + '">' + r.Status + '</span></td><td>' + escapeHtml_(r.Notes || '') + '</td></tr>';
+      }).join('') || '<tr><td colspan="7" style="color:var(--muted)">Tidak ada data</td></tr>';
+    }).catch(function (e) { tbody.innerHTML = '<tr><td colspan="7" style="color:var(--red)">⚠ Error: ' + e + '</td></tr>'; });
   }
 
   function doExport() {
