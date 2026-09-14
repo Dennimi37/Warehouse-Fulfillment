@@ -115,7 +115,7 @@
       <input id="loginPin" placeholder="PIN" type="password" inputmode="numeric" autocomplete="off">
       <button id="loginBtn" onclick="doLogin()">MASUK</button>
       <div class="login-error" id="loginError"></div>
-      <div class="login-note">Halaman ini khusus PIC untuk scan pakai kamera HP.</div>
+      <div class="login-note">Bismillahirrahmanirrahiim</div>
     </div>
   </div>
 
@@ -373,8 +373,6 @@
         <button class="tab-btn" data-tab="search" onclick="switchTab('search')">Search Resi</button>
         <button class="tab-btn" data-tab="history" onclick="switchTab('history')">Histori &amp; Filter</button>
         <button class="tab-btn" data-tab="pic" onclick="switchTab('pic')">Kelola Staff</button>
-        <button class="tab-btn" data-tab="cs" onclick="switchTab('cs')">CS Activity</button>
-        <button class="tab-btn" data-tab="return" onclick="switchTab('return')">Return Activity</button>
         <button class="tab-btn" data-tab="daily" onclick="switchTab('daily')">Laporan Harian</button>
         <button class="tab-btn" data-tab="productivity" onclick="switchTab('productivity')">Produktivitas</button>
         <button class="tab-btn" data-tab="audit" onclick="switchTab('audit')">Audit Log</button>
@@ -461,38 +459,6 @@
             <button class="btn-primary" onclick="applyCustomPicStatsRange_()">Terapkan Tanggal</button>
           </div>
           <table><thead><tr><th>Staff ID</th><th>Nama</th><th>Role</th><th>Status</th><th>Valid</th><th>Duplicate</th><th>Error</th><th></th></tr></thead><tbody id="picTable"></tbody></table>
-        </div>
-      </div>
-
-      <div class="tab-panel" id="tab-cs">
-        <div class="filter-row" style="margin-bottom:10px;">
-          <button class="tab-btn period-btn active" data-period="today" onclick="setCsPeriod_('today')">Hari Ini</button>
-        </div>
-        <div class="filter-row" style="margin-bottom:14px;">
-          <div class="field"><label>Dari tanggal</label><input type="date" id="csStart"></div>
-          <div class="field"><label>Sampai tanggal</label><input type="date" id="csEnd"></div>
-          <button class="btn-primary" onclick="applyCustomCsRange_()">Terapkan Tanggal</button>
-        </div>
-        <div class="overview-grid" id="csOvGrid"></div>
-        <div class="panel-box">
-          <h3 style="margin-top:0;" id="csPerPersonTitle">Klasemen CS — Hari Ini</h3>
-          <table><thead><tr><th>#</th><th>Nama</th><th>Session Chat</th><th>Qty DO</th><th>Sertifikat</th><th>Lainnya</th><th>Jumlah Entri</th></tr></thead><tbody id="csPerPersonTable"></tbody></table>
-        </div>
-      </div>
-
-      <div class="tab-panel" id="tab-return">
-        <div class="filter-row" style="margin-bottom:10px;">
-          <button class="tab-btn period-btn active" data-period="today" onclick="setReturnPeriod_('today')">Hari Ini</button>
-        </div>
-        <div class="filter-row" style="margin-bottom:14px;">
-          <div class="field"><label>Dari tanggal</label><input type="date" id="returnStart"></div>
-          <div class="field"><label>Sampai tanggal</label><input type="date" id="returnEnd"></div>
-          <button class="btn-primary" onclick="applyCustomReturnRange_()">Terapkan Tanggal</button>
-        </div>
-        <div class="overview-grid" id="returnOvGrid"></div>
-        <div class="panel-box">
-          <h3 style="margin-top:0;" id="returnPerPersonTitle">Klasemen Return — Hari Ini</h3>
-          <table><thead><tr><th>#</th><th>Nama</th><th>Valid</th><th>Duplicate</th><th>Error</th><th>Total</th></tr></thead><tbody id="returnPerPersonTable"></tbody></table>
         </div>
       </div>
 
@@ -1518,8 +1484,6 @@
     loadPicListForFilters_();
     refreshOverview();
     loadPicManagementTable_();
-    refreshCsOverview_();
-    refreshReturnOverview_();
     loadDailyReportsList_();
     loadProductivityRange_(todayShiftedSheetDate_(-6), todayShiftedSheetDate_(0));
     loadAuditLog_();
@@ -1727,84 +1691,6 @@
         .then(function () { closePicModal(); loadPicManagementTable_(); })
         .catch(function (e) { alert('Gagal: ' + e); });
     }
-  }
-
-  // ---------------- CS ACTIVITY ----------------
-  let csPeriod_ = 'today';
-  let customCsStart_ = null;
-  let customCsEnd_ = null;
-
-  function setCsPeriod_(period) {
-    csPeriod_ = period;
-    customCsStart_ = null; customCsEnd_ = null;
-    document.querySelectorAll('#tab-cs .period-btn').forEach(function (b) { b.classList.toggle('active', b.dataset.period === period); });
-    refreshCsOverview_();
-  }
-
-  function applyCustomCsRange_() {
-    const s = document.getElementById('csStart').value;
-    const e = document.getElementById('csEnd').value;
-    if (!s || !e) { alert('Pilih tanggal mulai dan akhir dulu.'); return; }
-    csPeriod_ = 'custom';
-    customCsStart_ = toSheetDateOv_(s);
-    customCsEnd_ = toSheetDateOv_(e);
-    document.querySelectorAll('#tab-cs .period-btn').forEach(function (b) { b.classList.remove('active'); });
-    refreshCsOverview_();
-  }
-
-  function refreshCsOverview_() {
-    callApi('getCsOverview', { period: csPeriod_, customStart: customCsStart_, customEnd: customCsEnd_ }).then(renderCsOverview_).catch(function (e) { console.error(e); });
-  }
-
-  function renderCsOverview_(d) {
-    const label = d.period === 'custom' ? 'Custom' : PERIOD_LABELS_[d.period];
-    document.getElementById('csPerPersonTitle').textContent = 'Klasemen CS — ' + label;
-    document.getElementById('csOvGrid').innerHTML = [
-      ['Total Session Chat (' + label + ')', d.totalSession], ['Total Qty DO', d.totalQtyCetak], ['Total Sertifikat', d.totalSertifikat], ['Total Lainnya', d.totalLainnya], ['Jumlah Entri', d.totalEntries]
-    ].map(function (x) { return '<div class="ov-card"><div class="n">' + x[1] + '</div><div class="l">' + x[0] + '</div></div>'; }).join('');
-
-    document.getElementById('csPerPersonTable').innerHTML = d.perPerson.map(function (p) {
-      return '<tr><td>' + p.rank + '</td><td>' + escapeHtml_(p.name) + '</td><td>' + p.session + '</td><td>' + p.qtyCetak + '</td><td>' + (p.sertifikat || 0) + '</td><td>' + (p.lainnya || 0) + '</td><td>' + p.entries + '</td></tr>';
-    }).join('') || '<tr><td colspan="7" style="color:var(--muted)">Belum ada entri pada periode ini</td></tr>';
-  }
-
-  // ---------------- RETURN ACTIVITY ----------------
-  let returnDashPeriod_ = 'today';
-  let customReturnDashStart_ = null;
-  let customReturnDashEnd_ = null;
-
-  function setReturnPeriod_(period) {
-    returnDashPeriod_ = period;
-    customReturnDashStart_ = null; customReturnDashEnd_ = null;
-    document.querySelectorAll('#tab-return .period-btn').forEach(function (b) { b.classList.toggle('active', b.dataset.period === period); });
-    refreshReturnOverview_();
-  }
-
-  function applyCustomReturnRange_() {
-    const s = document.getElementById('returnStart').value;
-    const e = document.getElementById('returnEnd').value;
-    if (!s || !e) { alert('Pilih tanggal mulai dan akhir dulu.'); return; }
-    returnDashPeriod_ = 'custom';
-    customReturnDashStart_ = toSheetDateOv_(s);
-    customReturnDashEnd_ = toSheetDateOv_(e);
-    document.querySelectorAll('#tab-return .period-btn').forEach(function (b) { b.classList.remove('active'); });
-    refreshReturnOverview_();
-  }
-
-  function refreshReturnOverview_() {
-    callApi('getReturnOverview', { period: returnDashPeriod_, customStart: customReturnDashStart_, customEnd: customReturnDashEnd_ }).then(renderReturnOverview_).catch(function (e) { console.error(e); });
-  }
-
-  function renderReturnOverview_(d) {
-    const label = d.period === 'custom' ? 'Custom' : PERIOD_LABELS_[d.period];
-    document.getElementById('returnPerPersonTitle').textContent = 'Klasemen Return — ' + label;
-    document.getElementById('returnOvGrid').innerHTML = [
-      ['Total Scan (' + label + ')', d.totalScan], ['Valid', d.totalValid], ['Duplicate', d.totalDuplicate], ['Error', d.totalError]
-    ].map(function (x) { return '<div class="ov-card"><div class="n">' + x[1] + '</div><div class="l">' + x[0] + '</div></div>'; }).join('');
-
-    document.getElementById('returnPerPersonTable').innerHTML = d.perPerson.map(function (p) {
-      return '<tr><td>' + p.rank + '</td><td>' + escapeHtml_(p.name) + '</td><td>' + p.valid + '</td><td>' + p.duplicate + '</td><td>' + p.error + '</td><td>' + p.total + '</td></tr>';
-    }).join('') || '<tr><td colspan="6" style="color:var(--muted)">Belum ada scan pada periode ini</td></tr>';
   }
 
   // ---------------- LAPORAN HARIAN ----------------
