@@ -1488,10 +1488,6 @@
     loadDailyReportsList_();
     loadProductivityRange_(todayShiftedSheetDate_(-6), todayShiftedSheetDate_(0));
     loadAuditLog_();
-    setInterval(function () {
-      const activeTab = document.querySelector('.tab-btn.active').dataset.tab;
-      if (activeTab === 'overview') refreshOverview();
-    }, 10000);
   }
 
   function switchTab(tab) {
