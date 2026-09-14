@@ -526,14 +526,40 @@
           <table><thead><tr><th>Nama</th><th>Hari Lapor</th><th>Session</th><th>Qty Cetak</th><th>Lainnya</th><th>Rata-rata/Hari</th></tr></thead><tbody id="prodCsTable"></tbody></table>
         </div>
         <div class="panel-box">
+          <h3 style="margin-top:0;">Chart Produktivitas Staff (per indikator)</h3>
           <div style="display:flex; gap:16px; flex-wrap:wrap;">
-            <div style="flex:1; min-width:260px; max-width:480px;">
-              <h4 style="margin-top:0;">Chart Produktivitas Staff</h4>
-              <canvas id="prodStaffChart"></canvas>
+            <div style="flex:1; min-width:220px; max-width:280px;">
+              <h4 style="margin-top:0; text-align:center;">Packing</h4>
+              <canvas id="prodChartPacking"></canvas>
             </div>
-            <div style="flex:1; min-width:260px; max-width:480px;">
-              <h4 style="margin-top:0;">Chart Produktivitas CS</h4>
-              <canvas id="prodCsChart"></canvas>
+            <div style="flex:1; min-width:220px; max-width:280px;">
+              <h4 style="margin-top:0; text-align:center;">Inbound</h4>
+              <canvas id="prodChartInbound"></canvas>
+            </div>
+            <div style="flex:1; min-width:220px; max-width:280px;">
+              <h4 style="margin-top:0; text-align:center;">Preparation</h4>
+              <canvas id="prodChartPreparation"></canvas>
+            </div>
+            <div style="flex:1; min-width:220px; max-width:280px;">
+              <h4 style="margin-top:0; text-align:center;">Lainnya (Staff)</h4>
+              <canvas id="prodChartLainnyaStaff"></canvas>
+            </div>
+          </div>
+        </div>
+        <div class="panel-box">
+          <h3 style="margin-top:0;">Chart Produktivitas CS (per indikator)</h3>
+          <div style="display:flex; gap:16px; flex-wrap:wrap;">
+            <div style="flex:1; min-width:220px; max-width:280px;">
+              <h4 style="margin-top:0; text-align:center;">Session</h4>
+              <canvas id="prodChartSession"></canvas>
+            </div>
+            <div style="flex:1; min-width:220px; max-width:280px;">
+              <h4 style="margin-top:0; text-align:center;">Qty Cetak</h4>
+              <canvas id="prodChartQtyCetak"></canvas>
+            </div>
+            <div style="flex:1; min-width:220px; max-width:280px;">
+              <h4 style="margin-top:0; text-align:center;">Lainnya (CS)</h4>
+              <canvas id="prodChartLainnyaCs"></canvas>
             </div>
           </div>
         </div>
@@ -1840,13 +1866,12 @@
     });
   }
 
-  let prodStaffChartInstance_ = null;
-  let prodCsChartInstance_ = null;
+  let prodChartInstances_ = {};
 
-  function renderProductivityChart_(canvasId, existingInstance, rows, datasetDefs) {
-    if (existingInstance) existingInstance.destroy();
+  function renderProductivityChart_(canvasId, rows, datasetDefs) {
+    if (prodChartInstances_[canvasId]) prodChartInstances_[canvasId].destroy();
     const ctx = document.getElementById(canvasId).getContext('2d');
-    return new Chart(ctx, {
+    prodChartInstances_[canvasId] = new Chart(ctx, {
       type: 'bar',
       data: {
         labels: rows.map(function (p) { return p.name; }),
@@ -1857,8 +1882,8 @@
       options: {
         responsive: true,
         maintainAspectRatio: true,
-        aspectRatio: 1.1,
-        plugins: { legend: { position: 'bottom' } },
+        aspectRatio: 1,
+        plugins: { legend: { display: false } },
         scales: { y: { beginAtZero: true } }
       }
     });
@@ -1872,13 +1897,14 @@
     renderProductivityTable_('prodStaffTable', d.staff, ['totalPacking', 'totalInbound', 'totalPreparation', 'totalLainnya', 'avgStaff']);
     renderProductivityTable_('prodCsTable', d.cs, ['totalSession', 'totalQtyCetak', 'totalLainnya', 'avgCs']);
 
-    prodStaffChartInstance_ = renderProductivityChart_('prodStaffChart', prodStaffChartInstance_, d.staff, [
-      { key: 'avgStaff', label: 'Rata-rata/Hari', color: '#3b6b45' }
-    ]);
+    renderProductivityChart_('prodChartPacking', d.staff, [{ key: 'avgPacking', label: 'Packing', color: '#3b6b45' }]);
+    renderProductivityChart_('prodChartInbound', d.staff, [{ key: 'avgInbound', label: 'Inbound', color: '#8a9a5b' }]);
+    renderProductivityChart_('prodChartPreparation', d.staff, [{ key: 'avgPreparation', label: 'Preparation', color: '#c9a24b' }]);
+    renderProductivityChart_('prodChartLainnyaStaff', d.staff, [{ key: 'avgLainnya', label: 'Lainnya', color: '#a3a3a3' }]);
 
-    prodCsChartInstance_ = renderProductivityChart_('prodCsChart', prodCsChartInstance_, d.cs, [
-      { key: 'avgCs', label: 'Rata-rata/Hari', color: '#3b6b45' }
-    ]);
+    renderProductivityChart_('prodChartSession', d.cs, [{ key: 'avgSession', label: 'Session', color: '#3b6b45' }]);
+    renderProductivityChart_('prodChartQtyCetak', d.cs, [{ key: 'avgQtyCetak', label: 'Qty Cetak', color: '#8a9a5b' }]);
+    renderProductivityChart_('prodChartLainnyaCs', d.cs, [{ key: 'avgLainnya', label: 'Lainnya', color: '#c9a24b' }]);
   }
 
   function loadProductivityRange_(startDate, endDate) {
