@@ -115,7 +115,7 @@
       <input id="loginPin" placeholder="PIN" type="password" inputmode="numeric" autocomplete="off">
       <button id="loginBtn" onclick="doLogin()">MASUK</button>
       <div class="login-error" id="loginError"></div>
-      <div class="login-note">Bismillahirrahmanirrahim.</div>
+      <div class="login-note">Bismillahirrahmanirrahiim.</div>
     </div>
   </div>
 
@@ -233,7 +233,7 @@
 
       <div class="status-panel" id="csStatusPanel" style="margin-top:16px;">
         <div class="icon" id="csStatusIcon">⚪</div>
-        <div class="msg" id="csStatusMsg">Isi Session &amp; Qty Cetak, lalu Simpan</div>
+        <div class="msg" id="csStatusMsg">Isi Session &amp; Qty DO (Resi), lalu Simpan</div>
       </div>
 
       <button style="width:100%; margin-top:6px; background:var(--panel-2); color:var(--text); border:1px solid var(--border);" onclick="openMyCsHistory_()">📋 Riwayat &amp; Hasil Kerja Saya</button>
@@ -1066,7 +1066,7 @@
   }
 
   // ================================================================
-  // CS ADMIN ACTIVITY — input Session + Qty Cetak
+  // CS ADMIN ACTIVITY — input Session + Qty DO (Resi)
   // ================================================================
   let csHistoryPeriod_ = 'today';
 
@@ -1397,7 +1397,7 @@
     const keterangan = document.getElementById('drCsKeterangan').value;
     const lembur = document.getElementById('drCsLembur').value;
     if (!dateVal || session === '' || qty === '') {
-      document.getElementById('drCsMsg').textContent = 'Tanggal, Sesi, dan Qty Cetak wajib diisi.';
+      document.getElementById('drCsMsg').textContent = 'Tanggal, Sesi, dan Qty DO (Resi) wajib diisi.';
       document.getElementById('drCsMsg').style.color = 'var(--red)';
       return;
     }
@@ -1846,7 +1846,7 @@
     renderProductivityChart_('prodChartLainnyaStaff', d.staff, [{ key: 'avgLainnya', label: 'Lainnya', color: '#a3a3a3' }]);
 
     renderProductivityChart_('prodChartSession', d.cs, [{ key: 'avgSession', label: 'Session', color: '#3b6b45' }]);
-    renderProductivityChart_('prodChartQtyCetak', d.cs, [{ key: 'avgQtyCetak', label: 'Qty Cetak', color: '#8a9a5b' }]);
+    renderProductivityChart_('prodChartQtyCetak', d.cs, [{ key: 'avgQtyCetak', label: 'Qty DO (Resi)', color: '#8a9a5b' }]);
     renderProductivityChart_('prodChartLainnyaCs', d.cs, [{ key: 'avgLainnya', label: 'Lainnya', color: '#c9a24b' }]);
   }
 
